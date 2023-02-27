@@ -47,11 +47,11 @@ $ npm start
 > hst325-test-project@1.0.0 start
 > webpack-dev-server --config webpack/base.js --open
 
-C:\Users\drfan\source\repos\fastlane\public\images.json written
+C:\Users\user\source\repos\fastlane\public\images.json written
 <i> [webpack-dev-server] Project is running at:
 <i> [webpack-dev-server] Loopback: http://localhost:8081/
 <i> [webpack-dev-server] On Your Network (IPv4): http://10.156.89.180:8081/
-<i> [webpack-dev-server] Content not from webpack is served from 'C:\Users\drfan\source\repos\fastlane\public' directory
+<i> [webpack-dev-server] Content not from webpack is served from 'C:\Users\user\source\repos\fastlane\public' directory
 <i> [webpack-dev-middleware] wait until bundle finished: /
 asset main.js 19 MiB [emitted] (name: main)
 asset index.html 471 bytes [emitted]
