@@ -39,7 +39,7 @@ Require stack:
 }
 ```
 
-This Error is find. Run ```npm start``` again to run the module.
+This Error is fine. Run ```npm start``` again to run the module.
 
 ```sh
 $ npm start
