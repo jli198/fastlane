@@ -1,6 +1,6 @@
 
 /*
- * I got a little carried away with the "you won" screen. Way better than the origial.
+ * I got a little carried away with the "you won" screen. Way better than the original.
  */
 module.exports = function(scene){
 	console.log("WINNER");
@@ -46,8 +46,8 @@ module.exports = function(scene){
 	var center_y = scene.winner.height/2-5;
 	var star_points = [];
 	for(var i = 0; i<12;i++) {
-		var cx = center_x*Math.sin(-deg2rad*(360/12*i));
-		var cy = center_y*Math.cos(-deg2rad*(360/12*i));
+		var cx = center_x*Math.sin(-Phaser.Math.DEG_TO_RAD*(360/12*i));
+		var cy = center_y*Math.cos(-Phaser.Math.DEG_TO_RAD*(360/12*i));
 		star_points.push([cx,cy])
 	}
 	var s = 0;
@@ -121,5 +121,3 @@ module.exports = function(scene){
 		callbackScope: scene
 	})
 }
-
-var deg2rad = (Math.PI / 180); //multiply radians by this to convert them to degrees

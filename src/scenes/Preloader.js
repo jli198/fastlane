@@ -82,7 +82,7 @@ export default class Preloader extends Phaser.Scene {
 			var angle = 360*progress;
 			this.scene.circle_progress.clear();
 			this.scene.circle_progress.fillStyle(0xec1730,1);
-			this.scene.circle_progress.slice(this.scene.width/2,this.scene.height/2,this.scene.circle_radius,-90*deg2rad,(angle-90)*deg2rad);
+			this.scene.circle_progress.slice(this.scene.width/2,this.scene.height/2,this.scene.circle_radius,-90*Phaser.Math.DEG_TO_RAD,(angle-90)*Phaser.Math.DEG_TO_RAD);
 			this.scene.circle_progress.fillPath();
 			*/
 
@@ -90,7 +90,7 @@ export default class Preloader extends Phaser.Scene {
 
 		//create an event to run when all assets loaded
 		this.load.on('complete', function () {
-			this.scene.scene.start("TitleScreen"); //now start the scene
+			this.scene.scene.start("MainScene"); //now start the scene
 		})
 
 		//having told it what to do, start the loader!
@@ -99,4 +99,3 @@ export default class Preloader extends Phaser.Scene {
 	}
 }
 
-var deg2rad = (Math.PI / 180); //multiply radians by this to convert them to degrees

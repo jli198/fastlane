@@ -20,16 +20,19 @@ module.exports = {
 			"rent_extension": false, //do they have a 1 week rent extension
 			"rent_extensions": 0, //total # of rent extensions requested
 			"rent_owed": 0, //how much back rent they owe
-			"rent_paid": false, //is rent paid this month
+			"rent_paid": true, //is rent paid this month 
 		},
 		"job": { //info about their job
 			"location":  "", //id of where the work -- blank if unemployed
 			"name": "", //job title
 			"wage": 1, //pay per hour
 			"uniform": "", //uniform requirement
+			"dependability": 0, //dependability requirement			
+			"experience": 0, //used to calculate max experience attained
 		},
 		"money": 200, //money in hand
 		"bank_money": 0, //money in bank
+		"stocks": [],
 		"ate": false, //did they eat yet this week
 		"starving": false, //did they not eat last week
 		"clothes": "casual", //type of clothes worn

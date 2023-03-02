@@ -66,7 +66,14 @@ module.exports = function(scene,options) {
 		var choices_font = (typeof options.choices_font=="undefined")?"chunky":options.choices_font;
 		var close_by_clicking = (typeof options.close_by_clicking=="undefined")?true:options.close_by_clicking;
 		var fade_in = (typeof options.fade_in=="undefined")?false:options.fade_in;
+		var fade_out = (typeof options.fade_out=="undefined")?false:options.fade_out;
 		var fade_delay = (typeof options.fade_delay=="undefined")?500:options.fade_delay;
+		var drop_in = (typeof options.drop_in=="undefined")?false:options.drop_in;
+		var drop_delay = (typeof options.drop_delay=="undefined")?500:options.drop_delay;
+		var depth = (typeof options.depth=="undefined")?false:options.depth;
+
+
+
 		var args = options.args;
 
 		scene.player.modal = true;
@@ -95,32 +102,70 @@ module.exports = function(scene,options) {
 		}
 
 		var speechBubble = new Phaser.GameObjects.Container(scene,x,y);
-		var bubble = new Phaser.GameObjects.Image(scene,0,0,texture).setOrigin(image_origin,image_origin)
+		if(depth) speechBubble.setDepth(depth);
+		var bubble = new Phaser.GameObjects.Image(scene,0,0,texture).setOrigin(0,0)
+
+		if(center_x) {
+			//we do this here because a) we need the x coordinate, and b) we need the bubble image width
+			x = Math.round(scene.width/2-bubble.width/2-parent.x);
+			speechBubble.setX(x)
+		}
+		if(center_y) {
+			y =Math.round(scene.height/2-bubble.height/2-parent.y);
+			speechBubble.setY(y);
+		}
+		
+		//creates a rectangle that detects clicks on top of everything else -- makes it either modal or easily dismissable
+		var screenClicker = scene.add.rectangle(-parent.x-x,-parent.y-y,scene.width,scene.height).setOrigin(0)
+		.setDepth(1000)
+		.setData("scene",scene)
+		.setInteractive() //we make this interactive even if clicking disabled is false, otherwise you'll click through it
+		speechBubble.add(screenClicker);
 
 		if(!choices) {
 			//basic functionality for making the bubble go away if there are no choices
-			//creates a rectangle that detects clicks on top of everything else
-			if(close_by_clicking) { //can disable clicking -- make sure there is some other way to get rid of the message!
-				var screenClicker = scene.add.rectangle(-parent.x-x,-parent.y-y,scene.width,scene.height).setOrigin(0)
-				.setDepth(1000)
-				.setData("scene",scene)
-				.setInteractive()
-				.on("pointerup",function(e) {
+			if(close_by_clicking) { //can disable clicking -- make sure there is some other way to get rid of the message if enabled!
+				screenClicker.on("pointerup",function(e) {
 					var scene = this.getData("scene");
-					scene.player.modal = false;
-					if(typeof callback=="function") callback(scene,args);
-					this.parentContainer.destroy();
+					if(fade_out) {
+						scene.tweens.add({
+							targets: speechBubble,
+							duration: fade_delay,
+							alpha: 0.0,
+							onComplete: function() {
+								scene.player.modal = false;
+								if(typeof callback=="function") callback(scene,args);
+								speechBubble.destroy();		
+							}
+						})
+					} else { 
+						scene.player.modal = false;
+						if(typeof callback=="function") callback(scene,args);
+						speechBubble.destroy();
+					}
 				})
-				speechBubble.add(screenClicker);
 			}
 			if(scene.settings.speech_display!==false||(display_time != "undefined"&&display_time!==false)) {					
 				scene.time.addEvent( {
 					delay: (typeof display_time=="undefined")?scene.settings.speech_display:display_time,
 					callback: function() {
 						if(typeof speechBubble != "undefined") {
-							scene.player.modal = false;
-							if(typeof callback=="function") callback(scene,args);
-							speechBubble.destroy();
+							if(fade_out) {
+								scene.tweens.add({
+									targets: speechBubble,
+									duration: fade_delay,
+									alpha: 0.0,
+									onComplete: function() {
+										scene.player.modal = false;
+										if(typeof callback=="function") callback(scene,args);
+										speechBubble.destroy();		
+									}
+								})
+							} else {
+								scene.player.modal = false;
+								if(typeof callback=="function") callback(scene,args);
+								speechBubble.destroy();
+							}
 						}
 					},
 					callbackScope: scene
@@ -128,26 +173,34 @@ module.exports = function(scene,options) {
 			}
 		}
 
-		var text_x = (typeof options.text_x=="undefined")?bubble.width/2:options.text_x;
-		var text_y = (typeof options.text_y=="undefined")?bubble.height/2:options.text_y;
+		var text_x = (typeof options.text_x=="undefined")?Math.round(bubble.width/2):options.text_x;
+		var text_y = (typeof options.text_y=="undefined")?Math.round(bubble.height/2):options.text_y;
 		var text_width = (typeof options.text_width == "undefined")?106:options.text_width;
+		var center_x = (typeof options.center_x=="undefined")?true:options.center_x;
+		var center_y = (typeof options.center_y=="undefined")?true:options.center_y;
 
 		speechBubble.add(bubble);
-		speechBubble.add(
-			new Phaser.GameObjects.BitmapText(scene,text_x,text_y,message_font,message,undefined,1).setMaxWidth(text_width).setAlpha(0.7).setOrigin(0.5,0.5)
-		)
+		var msg = new Phaser.GameObjects.BitmapText(scene,text_x,text_y,message_font,message,undefined,1).setMaxWidth(text_width).setAlpha(0.7);
+		if(center_x) msg.setX(text_x-Math.round(msg.width/2)); //works better than setOrigin
+		if(center_y) msg.setY(text_y-Math.round(msg.height/2));
+		speechBubble.add(msg)
 
 		//puts choices in a bubble
 		if(choices!==false) {
 			var choice_container = new Phaser.GameObjects.Container(scene,0,0);
-			choice_container.y = bubble.height-13;
-			var choice_gap = 14;
-			var options = [];
-			var c_text_x = 0;
+			choice_container.y = (typeof options.choice_y=="undefined")?bubble.height-13:options.choice_y;
+			var choice_gap = (typeof options.choice_gap=="undefined")?14:options.choice_gap;
+
+			var c_text_x = (typeof options.choice_x=="undefined")?0:options.choice_x;
+			var choice_options = [];
 			for(var i=0; i<choices.length;i++) {
-				var opt = new Phaser.GameObjects.BitmapText(scene,c_text_x,0,choices_font,choices[i].option,undefined,1).setMaxWidth(text_width).setAlpha(0.7).setOrigin(0,0.5)
-				opt.x = opt.x-opt.width;
-				var rect = new Phaser.GameObjects.Rectangle(scene,opt.x+opt.width/2+1,opt.y+1,opt.width+10,opt.height-3).setStrokeStyle(1.1,0x000000,0.7)
+				var opt = new Phaser.GameObjects.BitmapText(scene,c_text_x,0,choices_font,choices[i].option,undefined,1).setMaxWidth(text_width).setOrigin(0).setAlpha(0.7);
+				opt.setY(opt.y-Math.round(opt.height/2));
+				opt.setX(opt.x-Math.round(opt.width));
+				var choice_args;
+				if(typeof choices[i].args != "undefined") choice_args = choices[i].args;
+				if(typeof choice_args == "undefined" && typeof args !="undefined") choice_args = args;
+				var rect = new Phaser.GameObjects.Rectangle(scene,opt.x+opt.width/2+1,opt.y+1+opt.height/2,opt.width+10,opt.height+2).setStrokeStyle(1.1,0x000000,0.7)
 					.setData("c",choices[i])
 					.setInteractive()
 					.on("pointerdown",function () {
@@ -160,15 +213,15 @@ module.exports = function(scene,options) {
 						this.setFillStyle(0xffffff,0);
 						var c = this.getData("c");
 						if(typeof c.onclick == "function") {
-							c.onclick(this.scene,args);
+							c.onclick(this.scene,choice_args);
 						}
 						if(typeof callback=="function") callback(this.scene,args);
 						this.scene.player.modal = false;
 						this.parentContainer.parentContainer.destroy();	
 					})
 
-				options.push(rect)
-				choice_container.add(options[options.length-1]);
+				choice_options.push(rect)
+				choice_container.add(choice_options[choice_options.length-1]);
 				choice_container.add(opt);
 
 				c_text_x+=(opt.width+choice_gap);
@@ -177,8 +230,6 @@ module.exports = function(scene,options) {
 			choice_container.x = text_x-(c_text_x-choice_gap)/2+choice_gap;
 			speechBubble.add(choice_container);
 		}
-		if(center_x) speechBubble.setX(scene.width/2-bubble.width/2-parent.x)
-		if(center_y) speechBubble.setY(scene.height/2-bubble.height/2-parent.y);
 
 		if(fade_in) {
 			speechBubble.setAlpha(0);
@@ -188,5 +239,17 @@ module.exports = function(scene,options) {
 				alpha: 1.0,
 			})
 		}
+		if(drop_in) {
+			//it would be neat to mask this so that it only dropped in on the location_window,
+			//but I can't quite get it to work and it's not worth spending hours on
+			var target_y = speechBubble.y;
+			speechBubble.y = -bubble.height;
+			scene.tweens.add({
+				targets: speechBubble,
+				duration: drop_delay,
+				y: target_y
+			})
+		}
+
 		parent.add(speechBubble);
 	}

@@ -32,6 +32,7 @@ module.exports = {
 	],
 	"item_color": 0x0f4a37,
 	"item_spacing": 13,
+	"item_offset_y": -2,
 	"jobs": [
 		{
 			"name": "Clerk",

@@ -35,6 +35,7 @@ module.exports = {
 				"Welcome to Nariman Burgers! Please ignore the protesters out front! They hate freedom!",
 			],
 			"item_color": 0x652327,
+			"item_hover": 0xb00036,
 			"item_spacing": 13,
 			"jobs": [
 				{

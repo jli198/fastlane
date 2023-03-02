@@ -1,3 +1,5 @@
+import ScrollText from './lib/ScrollText.js'; //this is an external UI control (a textbox with a scrollbar)
+
 /*
  *	For our FastLane simulator, we have just one main scene that runs everything.
  *  It can look like a lot! The main thing to look at is create(), which sets
@@ -40,8 +42,9 @@ export default class MainScene extends Phaser.Scene {
 
 			//things useful for debugging
 			show_hitboxes: false, //debugging tool shows all hitboxes on locations
-			show_welcome: false, //turns off welcome messages 
+			show_welcome: true, //turns on/off welcome messages 
 			open_start_location: false, //if true, the starting location will automatically be shown
+			movement_speed: 1, //multiplier for the movement speed of the dot. e.g. change to 2 or 3 or 10 to speed it up.
 
 			//subsystems you can easily turn on or off as desired
 			check_won: true, //checks each week to see if they have met their goals
@@ -80,20 +83,28 @@ export default class MainScene extends Phaser.Scene {
 		//create the background color rectangle
 		this.background_color = this.add.rectangle(0,0,this.width,this.height,0xffffff).setOrigin(0,0).setDepth(-10);
 
-
-
 		//create and initialize the timer at bottom of screen
 		this.timer = this.add.graphics();
 		this.update_clock();
 
 		//this info sits on top of the timer
-		this.clock_dots = this.add.image(159,173, "clock-dots");
-		this.clock_rim = this.add.image(159,173,"clock-rim");
-		this.week_no = this.add.bitmapText(this.width/2,179,"small","Week #"+String(this.gamestate.week).padStart(2," ")).setOrigin(0.5,0);
+		this.clock_dots = this.add.image(160,174, "clock-dots").setOrigin(0)
+		this.clock_dots.setX(this.clock_dots.x-Math.round(this.clock_dots.width/2));
+		this.clock_dots.setY(this.clock_dots.y-Math.round(this.clock_dots.height/2));
+		this.clock_rim = this.add.image(160,174,"clock-rim").setOrigin(0)
+			.setInteractive()
+			.on("pointerup",function() {
+				if(this.scene.player.modal) return false;
+				this.scene.game_menu();
+			})
+		this.clock_rim.setX(this.clock_rim.x-Math.round(this.clock_rim.width/2));
+		this.clock_rim.setY(this.clock_rim.y-Math.round(this.clock_rim.height/2));
+		this.week_no = this.add.bitmapText(this.width/2,183,"small","Week #"+String(this.gamestate.week).padStart(2," ")).setOrigin(0);
+		this.week_no.setX(this.week_no.x-Math.round(this.week_no.width/2));
+
 		this.week_no.setInteractive().on("pointerup",function() {
-			//for debugging purposes, clicking on the week # will let you see the player stats
-			//in the browser console
-			console.log(this.scene.player);
+			if(this.scene.player.modal) return false;
+			this.scene.game_menu();
 		})
 
 		//now we create hitboxes for each location, and set up the click events for them.
@@ -137,11 +148,12 @@ export default class MainScene extends Phaser.Scene {
 		if(this.settings.open_start_location) {
 			this.show_location(this.player.location,false);
 		}
+
 	}
 
 	//show the screen for a given location
-	show_location(id,take_time = true) {
-		require('./lib/show_location.js')(this,id,take_time);
+	show_location(id,take_time = true,location_object) {
+		require('./lib/show_location.js')(this,id,take_time,location_object);
 	}
 
 	//shows text inside of an image texture
@@ -154,35 +166,7 @@ export default class MainScene extends Phaser.Scene {
 
 	//code that processes the end of the week
 	end_week() {
-		console.log("END WEEK "+this.gamestate.week);
-		//stop all animations
-		if(this.player_dot_tween) this.player_dot_tween.stop()
-		this.player.modal = false;
-
-		//send them home if they aren't there
-		if(this.player.location != this.player.home.location) {
-			this.player.location = this.player.home.location;
-			this.player.modal = true;
-			this.player.travel_path = [];
-			var loc = this.get_location(this.player.location);
-			this.tweens.add({
-				targets: this.player_dot,
-				x: loc.x,
-				y: loc.y,
-				duration: 300,
-				onCompleteParams: {scene: this},
-				onComplete: function() {
-					var scene = this.parent.scene; //get the scene object
-					if(scene.player_walk_tween) {
-						scene.player_walk_tween.stop();
-						scene.player_walk_tween = undefined;
-					}
-					scene.start_week();
-				}
-			})
-		} else {
-			this.start_week();
-		}
+		require('./lib/end_week.js')(this)
 	}
 
 	//code that starts a new week
@@ -204,7 +188,7 @@ export default class MainScene extends Phaser.Scene {
 				((wealth>=this.player.goals.wealth) &&
 				(happiness>=this.player.goals.happiness) &&
 				(education>=this.player.goals.education) &&
-				(career>=this.player.goals.career))
+				(career>=this.player.goals.career)) 
 			) {
 				this.you_won(); //trigger winning sequence
 				this.settings.check_won = false; //never check again
@@ -441,7 +425,9 @@ export default class MainScene extends Phaser.Scene {
 		if(message_queue.length) {
 			var next_message = {
 				display_time: 4000,
-				fade_in: true,
+				drop_in: true,
+				fade_out: true,
+				depth: -10,
 				callback: function(scene) {
 					message_queue.splice(0,1);
 					if(message_queue.length) {
@@ -470,7 +456,7 @@ export default class MainScene extends Phaser.Scene {
 		var angle = ((this.settings.hours_per_week-this.player.time)/this.settings.hours_per_week)*360;
 		this.timer.clear();
 		this.timer.fillStyle(0xec1730,1);
-		this.timer.slice(159,173,8.5,-90*deg2rad,(angle-90)*deg2rad);
+		this.timer.slice(159,173,8.5,-90*Phaser.Math.DEG_TO_RAD,(angle-90)*Phaser.Math.DEG_TO_RAD);
 		this.timer.fillPath();
 	}
 
@@ -493,99 +479,18 @@ export default class MainScene extends Phaser.Scene {
 	update_money() {
 		if(typeof this.player_money!="undefined") this.player_money.destroy();
 		if(typeof this.calculator!="undefined") {
-			this.player_money = this.add.bitmapText(this.calculator.x+21,this.calculator.y+2,'lcd',String(this.player.money).padStart(7," ")).setOrigin(0)
+			this.player_money = this.add.bitmapText(this.calculator.x+21,this.calculator.y+5,'lcd',String(this.player.money).padStart(7," ")).setOrigin(0)
 		}
 	}
 
 	//code that tells the game the player has set a new destination
 	set_destination(id) {
-		console.log("set_destination",id);
-
-		if(this.location_window) this.location_window.destroy();
-		this.hide_money();
-
-		//calculate the route to target -- checks both directions, uses shortest
-		var id1 = this.get_location_i(this.player.location);
-		var id2 = this.get_location_i(id);
-		var direction_1 = [];
-		var xx = +id1;
-		while(xx!=id2) {
-			direction_1.push(xx);
-			xx++;
-			if(xx>=this.locations.length) xx=0;
-		}
-		direction_1.push(+id2);
-		var direction_2 = [];
-		var xx = +id1;
-		while(xx!=id2) {
-			direction_2.push(xx);
-			xx--;
-			if(xx<0) xx = this.locations.length-1;
-		}
-		direction_2.push(+id2);
-
-		if(direction_1.length>direction_2.length) {
-			var direction = direction_2;
-		} else {
-			var direction = direction_1;
-		}	
-		this.player.travel_path = direction.slice(1,direction.length); //remove first item (where they already are)
-
-		//now start the actual movement animations
-		this.move_to_next();
+		require('./lib/set_destination.js')(this,id)
 	}
-
-	//moves the player to the next destination in their travel_path
+		
+	//moves player to the next destination on their path
 	move_to_next() {
-		//make sure player image is showing 
-		this.player_image.setVisible(true);
-		//if the image isn't walking, make it walk (just a crude flipping of X axis)
-		if(!this.player_walk_tween) {
-			this.player_walk_tween = this.tweens.add({
-				targets: this.player_image,
-				flipX: true,
-				x: this.player_image.x,
-				yoyo: true,
-				duration: 150,
-				repeat: -1
-			})
-		}
-		//get the next location
-		this.next_location = this.locations[this.player.travel_path[0]];
-
-		//stop any existing movement of the dot
-		if(this.player_dot_tween) {
-			this.player_dot_tween.stop();
-		}
-
-		//start a movement tween (this is really crude -- a real game would have waypoints set
-		this.player_dot_tween = this.tweens.add({
-			targets: this.player_dot,
-			x: this.next_location.x,
-			y: this.next_location.y,
-			duration: 350, 
-			onComplete: function() {
-				var scene = this.parent.scene; //get the scene object
-				scene.subtract_time(0.5); //each square set to 30 minutes travel
-				if(scene.player.time == 0) {
-					scene.end_week();
-				} else {					
-					//set current location, remove from travel path
-					scene.player.location = scene.next_location.id;
-					scene.player.travel_path = scene.player.travel_path.slice(1,scene.player.travel_path.length);
-					//if we've arrived, trigger arrival
-					if(scene.player.travel_path.length == 0) {
-						scene.next_location = false;
-						scene.player_walk_tween.stop();
-						scene.player_walk_tween = undefined;
-						scene.show_location(scene.player.location);
-					} else {
-						//if we still have places to go, start moving again
-						scene.move_to_next();
-					}
-				}
-			}
-		})			
+		require('./lib/move_to_next.js')(this)
 	}			
 
 	//gets the index of a location from its id
@@ -604,57 +509,31 @@ export default class MainScene extends Phaser.Scene {
 		return false;
 	}
 	
-	//adds buttons to bottom
-	bottom_button(img,x,onclick,location = undefined) {
+	//adds buttons to bottom of location_window
+	bottom_button(img,x,onclick,location) {
+		return require('./lib/bottom_button.js')(this,img,x,onclick,location)
+	}
 
-		var y = 109;
-		var btn = new Phaser.GameObjects.Image(this,x,y,img)
-		.setOrigin(0)
-		.setDepth(100)
-		.setInteractive()
-		.setData("beingclicked",false)
-		.on("pointerdown",function(e) {
-			if(this.scene.player.modal) return false;
-			this.setX(this.getData("x")+1).setY(this.getData("y")+1);
-			this.setData("beingclicked",true);
-		})
-		.on("pointerout",function(e) { 
-			if(this.scene.player.modal) return false;
-			if(this.getData("beingclicked")) {
-				this.setX(this.getData("x")).setY(this.getData("y"));
-			}
-		})
-		.on("pointerover",function(e) { 
-			if(typeof this.getData("x") == "undefined") {
-				this.setData("x",this.x);
-				this.setData("y",this.y);
-			}
-			if(this.scene.player.modal) return false;
-			if(e.buttons==1) {
-				this.setData("beingclicked",true);
-			} else {
-				this.setData("beingclicked",false);
-			}
-			if(this.getData("beingclicked")) {
-				this.setX(this.getData("x")+1).setY(this.getData("y")+1);
-			} 
-		})
-		.on("pointerup",function(e) {
-			if(this.scene.player.modal) return false;
-			if(this.getData("beingclicked")) {
-				this.setX(this.getData("x")).setY(this.getData("y"));
-				this.setData("beingclicked",false);
-				if(typeof onclick=="function") onclick(this.scene,location);
-			} 
-		})
-		return btn;
+	//a game menu -- uses same framework as the location system
+	game_menu = function() {
+		require('./lib/game_menu.js')(this,ScrollText)
 	}
 
 	//ridiculous screen shown on winning the game
 	you_won = function() {
 		require('./lib/winner.js')(this)
 	}
-}
 
-/* misc. variables, functions, globals, etc. */
-var deg2rad = (Math.PI / 180); //multiply radians by this to convert them to degrees
+	//Phaser can run in two modes -- WebGL and Canvas.
+	//There are some advanced graphics functions here that
+	//work differently in one or the other, so this is a useful function.
+	//You should not need to use this.
+	supportsWebGL = function() {
+		if(typeof this.renderer.currentContext!=="undefined") {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+}

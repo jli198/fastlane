@@ -31,7 +31,7 @@ module.exports = {
 	"speech": {
 		"image": "speech_bubble_l_t",
 		"image_x": 49,
-		"image_y": 24,
+		"image_y": 20,
 		"text_x": 71,
 		"text_y": 41,
 		"mouth": "nariman_jaw",
@@ -106,22 +106,31 @@ module.exports = {
 				var book = new Phaser.GameObjects.Container(scene,0,0);
 				var book_graphic = new Phaser.GameObjects.Image(scene,0,0,book_imgs[cur_book]).setOrigin(0,0).setDepth(10)
 				book.add(book_graphic);
-				book.add(new Phaser.GameObjects.BitmapText(scene,2,7,"chunky",degree.name).setOrigin(0).setDepth(100));
+				book.degreeName = new Phaser.GameObjects.BitmapText(scene,2,9,"chunky",degree.name).setOrigin(0).setDepth(100)
+				book.add(book.degreeName);
 				var enrolled = scene.player.enrolled.map(function(e) { return e.name; }).indexOf(degree.name);
 				if(enrolled>-1) {
 					if(scene.player.enrolled[enrolled].remaining<10) {
-						book.add(new Phaser.GameObjects.BitmapText(scene,81,7,"chunky",scene.player.enrolled[enrolled].remaining).setOrigin(0).setDepth(100))
+						book.degreeRemaining = new Phaser.GameObjects.BitmapText(scene,81,9,"chunky",scene.player.enrolled[enrolled].remaining).setOrigin(0).setDepth(100);
+						book.add(book.degreeRemaining)
 					}
 				}	
 				book.width = book_graphic.width;
 				book.height = book_graphic.height;
-
 				//then push this container to the item list
 				items.push({
 					"name": degree.name,
 					"object": book,
-					"clicker": book_graphic,
+					"hitbox": function(scene,item,location) {	
+						//setting a custom hitbox based on the book graphic locations
+						//item._item_y is set dynamically after the y position is calculated
+						return {"x":70,"y":item._item_y,"width":book_graphic.width,"height":book_graphic.height,"originX":0,"originY":0}
+					},
 					"x": 70,
+					"hover": function(hover,obj) {
+						obj.degreeName.setTintFill(hover?0xf0f0f0:0x000000);
+						if(typeof obj.degreeRemaining!="undefined") obj.degreeRemaining.setTintFill(hover?0xf0f0f0:0x000000);
+					},
 					"use": function(scene,item,location) {
 						//called if they click on this item
 						var enrolled = scene.player.enrolled.map(function(e) { return e.name; }).indexOf(item.name);
@@ -135,6 +144,7 @@ module.exports = {
 								if(remaining==0) {
 									scene.player.enrolled.splice(enrolled,1);
 									scene.player.degrees.push(degree.name);
+									scene.player.dependability+=5;
 									//diploma message
 									scene.show_message({
 										fade_in: true,
@@ -190,7 +200,7 @@ module.exports = {
 		return items;
 	},
 	"item_spacing": -13, //make them list from bottom to top
-	"item_offset_y": 58,
+	"item_offset_y": 54,
 	"buttons": [
 		{	//ENROLL button
 			"image": "btn-enroll",

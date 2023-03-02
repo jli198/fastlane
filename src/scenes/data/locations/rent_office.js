@@ -44,6 +44,13 @@ module.exports = {
 	"welcomes": [
 		"Thank goodness you don't have the option to buy a house in this game! I'd go bankrupt!",
 	],
+	"show_welcome": function(scene,location) { //whether we show the welcome depends on if it is open
+		if(scene.gamestate.week % 4 != 0 && !scene.player.home.rent_extension) {
+			return false;
+		} else {
+			return location.speech_open;
+		}
+	},
 	"jobs": [
 		{
 			"name": "Groundskeeper",
@@ -143,7 +150,6 @@ module.exports = {
 						choices: [
 							{ option:"Yes", 
 							onclick: function(scene,location) {
-								console.log(scene,location);
 								if(scene.player.money<price) {
 									scene.show_message({...location.speech_open,...{
 										message: "You don't have enough money to do this."
