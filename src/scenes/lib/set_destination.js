@@ -8,6 +8,14 @@ module.exports = function(scene,id){
 	if(scene.location_window) scene.location_window.destroy();
 	scene.hide_money();
 
+	//even if we are already there, we might need to move there
+	if(scene.player.location==id) {
+		var id2 = scene.get_location_i(id);
+		scene.player.travel_path = [id2];
+		scene.move_to_next();
+		return false;
+	}
+
 	//calculate the route to target -- checks both directions, uses shortest
 	var id1 = scene.get_location_i(scene.player.location);
 	var id2 = scene.get_location_i(id);

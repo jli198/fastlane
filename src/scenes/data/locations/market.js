@@ -14,6 +14,8 @@ module.exports =
 	"x1": 8, "y1": 83,
 	"x2": 67, "y2": 119,
 	"image": "place_market",
+	"item_image_x": 0,
+	"item_image_y": 57,
 	"speech": {
 		"image": "speech_bubble_r_t",
 		"image_x": 9,
@@ -100,7 +102,36 @@ module.exports =
 			"x": 73,
 			"name": "Newspaper",
 			"price": 1,
-			"message": "Here's the news: you wasted your money!"
+			"buy": function(scene,item,location) {
+				if(scene.player.time>=1) {
+					return true;
+				} else {
+					scene.show_message({...location.speech,...{
+						message: "Sorry, we're closing now."
+					}});
+					return false;
+				}
+			},
+			"use": function(scene,location) {
+				scene.subtract_time(1);
+				//just a silly example of how this could work
+				var headlines = [
+					"THERE'S NO NEWS,\nAND THAT'S GOOD NEWS!",
+					"MAN BITES DOG!",
+					"PROFESSOR SPENDS ALL HIS TIME MAKING GAME!",
+				]
+				var headline = headlines[Phaser.Math.Between(0,headlines.length-1)];
+				scene.show_message({
+					message: headline,
+					font: "large",
+					text_width: 170,
+					text_y: 42,
+					text_x: 90,
+					image: "message_newspaper",
+					image_x: 0,
+					image_y: 0,
+				});
+			}
 		},
 	]
 }

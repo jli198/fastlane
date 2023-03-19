@@ -1,14 +1,14 @@
 {
-  "name": "hst325-test-project",
+  "name": "fastlane",
   "version": "1.0.0",
-  "description": "A very simple project to test that Phaser and Node are correctly installed.",
+  "description": "A reverse-engineered version of Sierra's 1991 'Jones in the Fast Lane' developed for teaching purposes.",
   "main": "src/main.js",
   "scripts": {
     "build": "webpack --config webpack/prod.js ",
     "start": "webpack-dev-server --config webpack/base.js --open"
   },
   "author": "Alex Wellerstein",
-  "license": "ISC",
+  "license": "CC-BY-NC",
   "devDependencies": {
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",

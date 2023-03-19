@@ -127,15 +127,34 @@ module.exports = function(scene,id,take_time = true,location_object) {
 							if(typeof item.price != "undefined") {
 								//if it has a price, display a line of dots and the adjusted price
 								//the price_cost thing is just to calculate the size of the full line
-								var price = Math.round(item.price*scene.gamestate.economy);
-								var obj = new Phaser.GameObjects.BitmapText(scene, item_x,item_y,item_font,item.name)
+								var use_economy = (typeof item.use_economy == "undefined")?true:item.use_economy;
+								var price = Math.round(item.price*(use_economy?scene.gamestate.economy:1));
+								if(typeof item.text=="undefined") {
+									var item_text = item.name;
+								} else {
+									if(typeof item.text=="function") {
+										var item_text = item.text(scene,item,location);
+									} else {
+										var item_text = item.text;
+									}
+								}
+								var obj = new Phaser.GameObjects.BitmapText(scene, item_x,item_y,item_font,item_text)
 								var price_cost = new Phaser.GameObjects.BitmapText(scene, item_x,item_y,item_font,String(" $"+price)).setVisible(false);
 								var item_width = typeof(item.item_width=="undefined")?global_item_width:item.item_width;
 								var dot_width = item_width - (obj.width + price_cost.width);
 								price_cost.destroy();
 								obj.setText(item.name+String(".").repeat(dot_width/2)+" $"+price)
 							} else {
-								var obj = new Phaser.GameObjects.BitmapText(scene, item_x,item_y,item_font,item.name).setOrigin(0);
+								if(typeof item.text=="undefined") {
+									var item_text = item.name;
+								} else {
+									if(typeof item.text=="function") {
+										var item_text = item.text(scene,item,location);
+									} else {
+										var item_text = item.text;
+									}
+								}
+								var obj = new Phaser.GameObjects.BitmapText(scene, item_x,item_y,item_font,item_text).setOrigin(0);
 							}
 							//formatting of text
 							var item_align = (typeof item.align=="undefined")?global_item_align:item.align;
@@ -248,6 +267,13 @@ module.exports = function(scene,id,take_time = true,location_object) {
 									scene.player.money-=item.price;
 									scene.player_money.setText(String(scene.player.money).padStart(7," "));
 									if(typeof item.use == "function") item.use(scene,item,location); 
+									if(typeof item.image != "undefined") {
+										if(typeof location.item_image_x !="undefined"&&typeof location.item_image_y!=="undefined") {
+											if(scene.location_window.item_image) scene.location_window.item_image.destroy();
+											scene.location_window.item_image = new Phaser.GameObjects.Image(scene,location.item_image_x,location.item_image_y,item.image).setOrigin(0,0)
+											scene.location_window.add(scene.location_window.item_image);
+										}
+									}
 									if(typeof item.message !="undefined") {
 										scene.show_message({...speech,...{
 											message: item.message
@@ -263,6 +289,11 @@ module.exports = function(scene,id,take_time = true,location_object) {
 								}
 								if(can_buy) {
 									if(typeof item.use == "function") item.use(scene,item,location);
+									if(typeof item.image != "undefined") {
+										if(typeof location.item_image_x !="undefined"&&typeof location.item_image_y!=="undefined") {
+											scene.location_window.add(new Phaser.GameObjects.Image(scene,location.item_image_x,location.item_image_y,item.image).setOrigin(0,0));
+										}
+									}
 									if(typeof item.message !="undefined") {
 										scene.show_message({...speech,...{
 											message: item.message
@@ -285,10 +316,17 @@ module.exports = function(scene,id,take_time = true,location_object) {
 
 			//DONE button always exists, dismisses scene
 			scene.location_window.buttons.done = scene.bottom_button("btn-done",button_left,function(scene) {
+				if(typeof location.done == "function") {
+					location.done(scene,location);
+				} else {
 					if(scene.player.time <= 0.5) scene.end_week(); //not enough time to go anywhere
 					scene.hide_money();
+					if(typeof location.on_close == "function") {
+						location.on_close(scene);
+					} 
 					scene.location_window.destroy();
-			})
+				}
+			},location).setDepth(1000)
 			scene.location_window.add(scene.location_window.buttons.done);
 			button_left = scene.location_window.buttons.done.x;
 
@@ -296,74 +334,8 @@ module.exports = function(scene,id,take_time = true,location_object) {
 			if(scene.player.job.location==location.id) {
 				var btn_work = scene.bottom_button("btn-work",button_left,function(scene) {
 					if(scene.player.modal) return false;
-					if(scene.settings.check_uniforms) {
-						if(Object.keys(scene.player.outfits).indexOf(scene.player.clothes)<Object.keys(scene.player.outfits).indexOf(scene.player.job.uniform)) {
-							scene.show_message({...speech,...{
-								message: "You are not dressed appropriately for work."
-							}});
-							return;
-						}
-					}
-					if(scene.player.time>0) {
-						//check if dependability is too low, fire them 
-						var min_dependability = scene.player.job.dependability-5;
-						if(scene.player.dependability<min_dependability) {
-							scene.player.job = {
-								"location": "", 
-								"name": "", 
-								"wage": 0, 
-								"uniform": "", 
-								"experience": 0,
-								"dependability": 0, 
-							}
-							scene.show_message({...speech,...{
-								message: "Sorry, you've been fired for being too unreliable.",
-								callback: function(scene,location) {
-									scene.show_location(location.id,false);
-								},
-								args: location
-							}});
-							return;
-						} else if(scene.player.dependability<=(min_dependability+5)) {
-							scene.show_message({...speech,...{
-								message: "Hey, you need to show up to work more reliably. This is a warning.",
-							}});
-						}
-
-						//basic work is 6 hours, which is 8X wage
-						if(scene.player.time>=6) {
-							var earned =scene.player.job.wage*8;
-							scene.subtract_time(6);
-						} else { //prorated pay
-							var earned = Math.round(scene.player.job.wage*(scene.player.time*8/6))
-							scene.subtract_time(scene.player.time);
-						}
-						//check for back rent
-						if(scene.settings.check_rent) {
-							if(scene.player.home.rent_owed) {
-								var garnish = Math.round(earned/2);
-								if(scene.player.home.rent_owed<garnish) {
-									garnish = scene.player.home.rent_owed;
-								}
-								scene.player.home.rent_owed-=garnish;
-								earned-=(garnish+2); //plus a service fee
-								scene.show_message({...speech,...{
-									message: "Your landlord garnished $"+garnish+" for owed rent."
-								}});
-							}
-						}
-						scene.player.money+=earned;
-						var max_experience = 10+scene.player.job.experience+(scene.player.degrees.length*5); //each job has a max experience
-						if(scene.player.experience<max_experience) scene.player.experience+=1;
-						scene.player.dependability+=1; 
-						scene.player_money.setText(String(scene.player.money).padStart(7," "));
-					} else {
-						console.log("NO TIME");
-						scene.show_message({...speech,...{
-							message: "There is no more time to work."
-						}});
-					}
-				})
+					scene.work(location); //runs the work function
+				}).setDepth(1000)
 				btn_work.x = button_left - btn_work.width-button_spacing;
 				scene.location_window.buttons.work = btn_work;
 				scene.location_window.add(scene.location_window.buttons.work);
@@ -387,7 +359,7 @@ module.exports = function(scene,id,take_time = true,location_object) {
 								btn.onclick(scene,location);
 							}
 						}
-					)
+					).setDepth(1000)
 					btn_custom.x = button_left - btn_custom.width-button_spacing;
 					scene.location_window.buttons[btn.name] = btn_custom;
 					scene.location_window.add(scene.location_window.buttons[btn.name] );

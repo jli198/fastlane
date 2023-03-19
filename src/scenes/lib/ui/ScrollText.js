@@ -88,7 +88,7 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 						callback: () => {
 							if(obj.pointerDown) {
 								obj.textObj.y += obj.config.scrollSpeed*10;
-								obj.textObj.y = Phaser.Math.Clamp(obj.textObj.y, -(obj.textObj.height-obj.config.height+obj.config.innerOffsetY), obj.config.innerOffsetY+obj.config.strokeWidth);
+								obj.textObj.y = Phaser.Math.Clamp(obj.textObj.y, obj.textObj.minY, obj.textObj.maxY);
 								obj.scroller.slider.update(obj);
 							} else {
 								obj.pointerDownCheck.destroy();
@@ -127,7 +127,7 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 						callback: () => {
 							if(obj.pointerDown) {
 								obj.textObj.y -= obj.config.scrollSpeed*10;
-								obj.textObj.y = Phaser.Math.Clamp(obj.textObj.y, -(obj.textObj.height-obj.config.height+obj.config.innerOffsetY), obj.config.innerOffsetY+obj.config.strokeWidth);
+								obj.textObj.y = Phaser.Math.Clamp(obj.textObj.y, obj.textObj.minY, obj.textObj.maxY);
 								obj.scroller.slider.update(obj);
 							} else {
 								obj.pointerDownCheck.destroy();
@@ -151,11 +151,10 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 			height: scroller_height/2,
 			bottom: this.config.height-scroller_height*2+scroller_height/2,
 			update: function(obj) {
-				var min = -(obj.textObj.height-obj.config.height+obj.config.innerOffsetY);
-				var max = obj.config.innerOffsetY+obj.config.strokeWidth
-				var cur = obj.textObj.y;
-				var per = 1-((cur-min)/(max-min));
-				var new_y = (1-per)*obj.scroller.slider.top+per*obj.scroller.slider.bottom;
+				var new_y = obj.scene.lerp(
+					obj.scroller.slider.top, obj.textObj.maxY,
+				 obj.scroller.slider.bottom, obj.textObj.minY, 
+				 obj.textObj.y);				 
 				obj.scroller.slider.rectangle.y = new_y;
 			}
 		}
@@ -179,7 +178,7 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 				var dx = (dragX-gameObject.x);
 				var dy = (dragY-gameObject.y);
 				obj.textObj.y -= (dy);
-				obj.textObj.y = Phaser.Math.Clamp(obj.textObj.y, -(obj.textObj.height-obj.config.height+obj.config.innerOffsetY), obj.config.innerOffsetY+obj.config.strokeWidth);
+				obj.textObj.y = Phaser.Math.Clamp(obj.textObj.y, obj.textObj.minY, obj.textObj.maxY);
 				obj.scroller.slider.update(obj);				
 			}
 		})	
@@ -188,7 +187,7 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 		this.background = new Phaser.GameObjects.Rectangle(scene,0,0,this.config.width,this.config.height,this.config.background,this.config.backgroundAlpha).setStrokeStyle(this.config.strokeWidth,this.config.stroke).setOrigin(0,0);
 
 		//text object
-		var bt = new Phaser.GameObjects.BitmapText(scene,this.config.innerOffsetX+this.config.strokeWidth,this.config.innerOffsetY+this.config.strokeWidth,this.config.font,this.config.text,this.config.align).setMaxWidth(textWidth).setTintFill(this.config.color).setOrigin(0,0);
+		var bt = new Phaser.GameObjects.BitmapText(scene,this.config.innerOffsetX+this.config.strokeWidth,this.config.innerOffsetY+this.config.strokeWidth,this.config.font,this.config.text,this.config.align).setMaxWidth(textWidth).setTintFill(this.config.color).setOrigin(0,0);	
 		if(scene.supportsWebGL()) {
 			this.textObj = bt;
 		} else {
@@ -198,6 +197,11 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 			this.textObj.draw(bt,0,0);
 			bt.setVisible(false);
 		}
+
+		this.textObj.minY = -(this.textObj.height-this.config.height)-this.config.strokeWidth;
+		this.textObj.maxY = this.config.innerOffsetY;
+		if(this.textObj.minY>this.textObj.maxY) this.textObj.minY = this.textObj.maxY;
+
 
 		//control border
 		this.border = new Phaser.GameObjects.Rectangle(scene,0,0,this.config.width,this.config.height,this.config.background,0).setStrokeStyle(this.config.strokeWidth,this.config.stroke).setOrigin(0,0);
@@ -211,17 +215,15 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 		var abs_y = this.config.y+this.config.strokeWidth+this.config.innerOffsetY;
 
 		if(typeof this.config.parent!="undefined") {
-			var tempMatrix = new Phaser.GameObjects.Components.TransformMatrix();
-			var tempParentMatrix = new Phaser.GameObjects.Components.TransformMatrix();
-			this.config.parent.getWorldTransformMatrix(tempMatrix, tempParentMatrix);
-			var m = tempMatrix.decomposeMatrix();
-			abs_x+= m.translateX;
-			abs_y+= m.translateY;
+			var ac = this.get_absolute_coordinates(this.config.parent);
+			abs_x+=ac.x;
+			abs_y+=ac.y;
 		}
 		
 		this.abs_x = abs_x;
 		this.abs_y = abs_y;
 
+		//This is creating the mask that hides the text on visible in the control
 		const shape = new Phaser.GameObjects.Graphics(scene,{x:0,y:0});
 		shape.fillStyle(0xffffff);
 		shape.beginPath();
@@ -231,6 +233,7 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 		const mask = shape.createGeometryMask();
 		this.textObj.setMask(mask);
 	
+		//make the background scrollable
 		this.background.setInteractive()
 		.setData("obj",this)
 		.on('pointermove', function (pointer) {
@@ -243,6 +246,7 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 		});
 
 		var object = this;
+		//allows the setting of text
 		this.container.setText = function(text) {
 			if(object.scene.supportsWebGL()) {
 				object.textObj.setText(text);
@@ -253,13 +257,28 @@ export default class ScrollText extends Phaser.GameObjects.GameObject {
 				object.textObj.clear();
 				object.textObj.resize(bt.width,bt.height);
 				object.textObj.draw(bt,0,0);	
-				bt.setVisible(false);
+				bt.setVisible(false);				
 			}
+			this.textObj.minY = -(this.textObj.height-this.config.height)-this.config.strokeWidth;
+			this.textObj.maxY = this.config.innerOffsetY;
+			if(this.textObj.minY>this.textObj.maxY) this.textObj.minY = this.textObj.maxY;	
 		}	
 		this.container.config = this.config;
 
 		return this.container;
 	}
-	
+
+	//returns the absolute coordinates of any object
+	get_absolute_coordinates(object) {
+		var tempMatrix = new Phaser.GameObjects.Components.TransformMatrix();
+		var tempParentMatrix = new Phaser.GameObjects.Components.TransformMatrix();
+		object.getWorldTransformMatrix(tempMatrix, tempParentMatrix);
+		var m = tempMatrix.decomposeMatrix();
+		var x = m.translateX;
+		var y = m.translateY;
+		return {"x":x,"y":y}
+	}
+
+
 }
 

@@ -22,6 +22,8 @@ module.exports = {
 			return "place_rent"
 		}
 	},
+	"item_image_x": 0,
+	"item_image_y": 57,
 	"speech": function(scene,location) {				
 		if(scene.gamestate.week % 4 != 0 && !scene.player.home.rent_extension) {
 			return false;

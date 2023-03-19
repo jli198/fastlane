@@ -15,6 +15,8 @@ module.exports = {
 	"x1":252, "y1": 83,
 	"x2":312, "y2": 119,
 	"image": "place_clothing",
+	"item_image_x": 0,
+	"item_image_y": 57,
 	"speech": {
 		"image": "speech_bubble_r_t",
 		"image_x": 14,
@@ -52,6 +54,7 @@ module.exports = {
 				scene.player.image = scene.player.outfits[scene.player.clothes];
 				scene.player_image.destroy();
 				scene.player_image = scene.add.image(scene.width/2,scene.height/2,scene.player.image).setDepth(1);
+				scene.center(scene.player_image);
 				scene.player.happiness+=2;
 				scene.player.clothes_wear = 13;
 			}
@@ -65,6 +68,7 @@ module.exports = {
 				scene.player.image = scene.player.outfits[scene.player.clothes];
 				scene.player_image.destroy();
 				scene.player_image = scene.add.image(scene.width/2,scene.height/2,scene.player.image).setDepth(1);
+				scene.center(scene.player_image);
 				scene.player.happiness+=1;
 				scene.player.clothes_wear = 13;
 			}
@@ -78,6 +82,7 @@ module.exports = {
 				scene.player.image = scene.player.outfits[scene.player.clothes];
 				scene.player_image.destroy();
 				scene.player_image = scene.add.image(scene.width/2,scene.height/2,scene.player.image).setDepth(1);
+				scene.center(scene.player_image);
 				scene.player.clothes_wear = 11;
 			}
 		},

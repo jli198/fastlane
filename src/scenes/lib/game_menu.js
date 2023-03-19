@@ -8,17 +8,21 @@
  * Because of the way this works, the ScrollText import has to be in the main function, and
  * it passes the object here so it can be used.
  */
-module.exports = function(scene,ScrollText){
+module.exports = function(scene){
 		var menu = {
 			"id": "game_menu",
 			"speech": {
 				"image": "speech_bubble_large",
 			},
-			"item_font": "chunky",
+			"item_font": "small",
 			"item_align": "center",
 			"item_offset_x": Math.round(183/2),
 			"item_offset_y": -15,
 			"item_hover": 0x606dcc,
+			"item_spacing": 9,
+			"on_close": function(scene) { 
+				scene.input.off("drag"); //otherwise this will continue to always be checking
+			},
 			"items": function(scene,location) {
 				scene.location_window.add(new Phaser.GameObjects.Rectangle(scene,1,0,182,111,0xffffff,0.9).setStrokeStyle(1,0x00000).setOrigin(0,0))
 				var txt = new Phaser.GameObjects.BitmapText(scene,Math.round(183/2),5,"chunky","--------- Menu ---------").setOrigin(0,0);
@@ -29,7 +33,7 @@ module.exports = function(scene,ScrollText){
 				scene.location_window.add(txt)
 
 				//a quick little function for converting the objects into human-readable strings
-				var obj_dump = function(obj,separator="\n",indent="") {
+				var obj_dump = function(obj,separator="\n",indent="",num=0) {	
 					var o = [];
 					for(var i in Object.keys(obj)) {
 						var key = Object.keys(obj)[i];
@@ -37,10 +41,14 @@ module.exports = function(scene,ScrollText){
 						if(typeof val == "number") {
 							var out_val = Phaser.Math.RoundTo(val,-2);
 						} else if(typeof val=="object") {						
-							var out_val = "[";
-							var oo = obj_dump(val,separator,indent+"  ");
-							if(oo.trim()) out_val+="\n"+oo+"\n";
-							out_val+=indent+"]";
+							if(val.length == 0) {
+								var out_val = "[ ]";
+							} else {
+								var out_val = "[";
+								var oo = obj_dump(val,separator,indent+"  ",(+num)+1);
+								if(oo.trim()) out_val+="\n"+oo+"\n";
+								out_val+=indent+"]";
+							}
 						} else if(typeof val=="boolean") {
 							var out_val = (val)?"Yes":"No";
 						} else if(typeof val=="string") {
@@ -56,6 +64,8 @@ module.exports = function(scene,ScrollText){
 
 				//a reusable function for dumping the variable info
 				var info_dump = function(scene) {
+					console.log(scene.gamestate);
+					console.log(scene.player);
 					var info = "";
 					info+=String("=").repeat(38)+"\n";
 					info+="        CURRENT GAME DATA:\n";
@@ -74,7 +84,7 @@ module.exports = function(scene,ScrollText){
 				var info = info_dump(scene);
 
 				//create the scroller
-				scene.location_window.scroller = new ScrollText({
+				scene.location_window.scroller = new scene.scrollText({
 					scene: scene,
 					x: 7,
 					y: 50,
@@ -90,86 +100,19 @@ module.exports = function(scene,ScrollText){
 				items.push({
 					"name": "SAVE GAME",
 					"use":function(scene,item,location) {						
-						var restored_gamestate = localStorage.getItem("fastlane_gamestate");
-						var restored_player = localStorage.getItem("fastlane_player");
-						if(restored_gamestate!=null || restored_player != null) {
-							scene.show_message({...location.speech,...{
-								text_y: 28,
-								message: "There can only be one saved game at a time. Overwrite existing?",
-								args: location,
-								choices: [
-									{
-									"option": "Yes",
-									"onclick": function(scene,location) {
-										localStorage.setItem("fastlane_gamestate", JSON.stringify(scene.gamestate));
-										localStorage.setItem("fastlane_player", JSON.stringify(scene.player));
-										scene.show_message({...location.speech,...{
-											message: "The current game has been saved to your browser's local storage.",
-										}})
-									}	
-								},
-									{"option": "No"}
-								]
-							}})
-						} else {
-							localStorage.setItem("fastlane_gamestate", JSON.stringify(scene.gamestate));
-							localStorage.setItem("fastlane_player", JSON.stringify(scene.player));
-							scene.show_message({...location.speech,
-								message: "The current game has been saved to your browser's local storage.",
-							})
-						}
+						require("./save_game.js")(scene);
 					}
 				})
 				items.push({
 					"name": "RESTORE GAME",
 					"use":function(scene,item,location) {
-						var restored_gamestate = localStorage.getItem("fastlane_gamestate");
-						var restored_player = localStorage.getItem("fastlane_player");
-						if(restored_gamestate==null || restored_player == null) {
-							scene.show_message({...location.speech,
-								message: "No saved game found to restore.",
-							})
-						} else {
-							scene.show_message({...location.speech,...{
-								text_y: 28,
-								message: "Restore saved game? This will overwrite settings of current game.",
-								choices: [
-									{
-									"option": "Yes",
-									"args": location,
-									"onclick": function(scene,location) {
-										var restored_gamestate = localStorage.getItem("fastlane_gamestate");
-										var restored_player = localStorage.getItem("fastlane_player");
-										try {
-											var new_gamestate = JSON.parse(restored_gamestate);
-											var new_player = JSON.parse(restored_player);
-										} catch (err) {
-											scene.show_message({...location.speech,...{
-												message: "There was an error parsing the saved game.",
-											}})
-											return;
-										}
-										scene.gamestate = new_gamestate;
-										scene.player = new_player;
-										var loc = scene.get_location(scene.player.location);
-										scene.player_dot.destroy();
-										scene.player_dot = scene.add.image(loc.x,loc.y,scene.player.icon);
-										scene.player_image.destroy();
-										scene.player_image = scene.add.image(scene.width/2,scene.height/2,scene.player.image).setDepth(1);
-										scene.background_color.setFillStyle(scene.player.background_color);
-										scene.update_clock();
-										scene.update_money();
-										scene.week_no.setText("Week #"+scene.gamestate.week);
-
-										var info = info_dump(scene);
-										scene.location_window.scroller.setText(info);
-
-									}									
-								},
-								{"option": "No"}
-								]
-							}})
-						}
+						require("./restore_game.js")(scene);
+					}
+				})
+				items.push({
+					"name": "GOALS",
+					"use": function(scene) {
+						require("./goal_progress.js")(scene);
 					}
 				})
 				return items;

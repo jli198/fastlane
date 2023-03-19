@@ -12,9 +12,9 @@ const config = {
 	width: 320, /* width, in pixels, of the game */
 	height: 200, /* height, in pixels, of the game */
 	pixelArt: true, /* these settings make it so it isn't blurry */
-	antialias: false, 
+	antialias: false, /* ditto */
 	roundPixels: true, /* if your pixel art seems 'warped' make sure this is true! */ 
-	scene: [Preloader,TitleScreen,MainScene], /* this tells it where to start */
+	scene: [Preloader,TitleScreen,MainScene], /* this tells it what scenes to include */
 };
 
 /* this now creates and starts the game */

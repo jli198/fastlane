@@ -16,6 +16,8 @@ module.exports = {
 	"x1":252, "y1": 156,
 	"x2":312, "y2": 193,
 	"image": "place_appliances",
+	"item_image_x": 0,
+	"item_image_y": 0,
 	"speech": {
 		"image": "speech_bubble_r_b",
 		"image_x": 9,
@@ -47,9 +49,10 @@ module.exports = {
 			"name": "Refrigerator",
 			"price": 876,
 			"x": 73,
+			"pawnable": true,
 			"message": "Hey, that's pretty cool!\n\n...Get it?",
 			"buy": function(scene,item,location) { 
-				if(scene.player.inventory.includes(item.name)) {
+				if(scene.inventory_has_item(item.name)) {
 					scene.show_message({...location.speech,...{
 						message: "You already have one of these, you don't need two!"
 					}});
@@ -58,14 +61,15 @@ module.exports = {
 					return true;
 				} 
 			},
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},				
 		{
 			"name": "Freezer",
 			"price": 513,
+			"pawnable": true,
 			"message": "Hey, that's REALLY cool!\n\n...Uh, get it?",
 			"buy": function(scene,item,location) { 
-				if(scene.player.inventory.includes(item.name)) {
+				if(scene.inventory_has_item(item.name)) {
 					scene.show_message({...location.speech,...{
 						message: "You already have one of these, you don't need two!"
 					}});
@@ -74,51 +78,58 @@ module.exports = {
 					return true;
 				} 
 			},
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Stove",
 			"price": 513,
+			"pawnable": true,
 			"message": "Don't burn your house down!",
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Color TV",
 			"price": 513,
 			"x": 5,
 			"y": 1,
+			"pawnable": true,
 			"message": "Isn't it impressive that 'color' is an important adjective here?",
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "VCR",
 			"price": 333,
+			"pawnable": true,
 			"message": "If I made a Betamax joke, would you even get it?",
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Stereo",
 			"price": 412,
+			"pawnable": true,
 			"message": "Featuring innovative cassette technology!",
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Microwave",
 			"price": 330,
+			"pawnable": true,
 			"message": "The cooking instrument of champions!",
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Hot Tub",
 			"price": 1255,
+			"pawnable": true,
 			"message": "Are you sure your lease will allow this?",
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Computer",
 			"price": 1599,
+			"pawnable": true,
 			"message": "Someday you'll be able to surf the Internet, I imagine!",
-			"use": function(scene,item) { scene.player.inventory.push(item.name); }
+			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 	]
 }

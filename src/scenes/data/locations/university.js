@@ -28,6 +28,8 @@ module.exports = {
 	"x1":190, "y1": 156,
 	"x2":251, "y2": 193,
 	"image": "place_university",
+	"item_image_x": 0,
+	"item_image_y": 57,
 	"speech": {
 		"image": "speech_bubble_l_t",
 		"image_x": 49,
@@ -173,10 +175,11 @@ module.exports = {
 								}});
 							}
 						} else { //if not enrolled, see if they can enroll
-							if(scene.player.inventory.includes("Enrollment receipt")) {
+							if(scene.inventory_has_item("Enrollment receipt")) {
 								if(scene.player.time>=1) {
-									scene.player.inventory.splice(scene.player.inventory.indexOf("Enrollment receipt"),1);
+									scene.inventory_remove_item("Enrollment receipt");
 									scene.player.enrolled.push({"name":degree.name,"remaining":9});
+
 									scene.subtract_time(6);
 									scene.show_location(location.id,false);		
 								} else {
@@ -206,7 +209,7 @@ module.exports = {
 			"image": "btn-enroll",
 			"onclick": function(scene,location) {
 				//process "Enrollment receipt" purchase if possible
-				if(scene.player.inventory.includes("Enrollment receipt")) {
+				if(scene.inventory_has_item("Enrollment receipt")) {
 					scene.show_message({...location.speech,...{
 						message: "You are already enrolling, pick the class to enroll in."
 					}});
@@ -223,7 +226,7 @@ module.exports = {
 									message: "You don't have enough money for the fee."
 								}});
 							} else {
-								scene.player.inventory.push("Enrollment receipt");
+								scene.inventory_add_item("Enrollment receipt");
 								scene.player.money-=fee;
 								scene.update_money();
 							}

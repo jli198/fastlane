@@ -1,4 +1,7 @@
-import ScrollText from './lib/ScrollText.js'; //this is an external UI control (a textbox with a scrollbar)
+import ScrollText from './lib/ui/ScrollText.js'; //this is an external UI control (a textbox with a scrollbar)
+import ScrollList from './lib/ui/ScrollList.js'; //this is an external UI control (a listbox with a scrollbar)
+import TopMenu from './lib/ui/TopMenu.js'; //experimental UI control for top menu
+import ModalMessage from './lib/ui/ModalMessage.js'; //UI control for displaying simple modal messages
 
 /*
  *	For our FastLane simulator, we have just one main scene that runs everything.
@@ -14,7 +17,6 @@ import ScrollText from './lib/ScrollText.js'; //this is an external UI control (
  *  scene is at this.parent.scene!
  * 
  */
-
 //everything in this scene exists inside this class
 export default class MainScene extends Phaser.Scene {
 	//the scene constructor -- basically just tells phaser the name of the scene
@@ -25,26 +27,18 @@ export default class MainScene extends Phaser.Scene {
 	//init runs first -- for very basic stuff
 	init() {
 		console.log('MainScene');
-
-		//basic game info -- i.e., stuff that would be common to all players if multiplayer
-		this.gamestate = {
-			week: 1, //what week is it
-			economy: 1, //multiplier that affects prices	
-			turn_flags: {}, //flags that are wiped clean each turn -- works for all players if multiplayer
-		}
-
 		//some basic settings -- not every variable is represented here,
 		//but these are ones that feel like they ought to be tweakable
 		this.settings = {
-			hours_per_week: 60, //hours per week -- note that this doesn't set initial hours
 			speech_display: 3000, //how long a speech bubble is displayed before automatically closing itself -- set to 'false' to never have it triggered
 			minimum_wage: 1, //wages for a given job can never go below this
 
 			//things useful for debugging
 			show_hitboxes: false, //debugging tool shows all hitboxes on locations
-			show_welcome: true, //turns on/off welcome messages 
+			show_welcome: true, //turns on/off welcome messages at locations
 			open_start_location: false, //if true, the starting location will automatically be shown
 			movement_speed: 1, //multiplier for the movement speed of the dot. e.g. change to 2 or 3 or 10 to speed it up.
+			auto_restore: false, //if true, instead of starting with a new game, it will automatically restore the saved game -- for debugging only!!!
 
 			//subsystems you can easily turn on or off as desired
 			check_won: true, //checks each week to see if they have met their goals
@@ -52,8 +46,32 @@ export default class MainScene extends Phaser.Scene {
 			check_clothes: true, //checks if clothes are worn
 			check_uniforms: true, //checks if clothes are appropriate for working
 			check_food: true, //checks if ate, starvation, etc.
+			do_economy: true, //whether economy changes
+			do_weekend: true, //do we do random weekend events
+			do_doctor: true, //do we do the doctor event
 
+			version: "1.0", //version of this game engine
 		}
+
+		//basic game info -- i.e., stuff that would be common to all players if multiplayer
+		this.gamestate = {
+			new_game: false, //is this a new game or not (if so, will ask to select player, etc.)
+			week: 1, //what week is it
+			economy: 1, //multiplier that affects prices	
+			turn_flags: {}, //flags that are wiped clean each turn -- works for all players if multiplayer
+			stocks: [ //the different stocks and their base price info
+				{"name": "T-BILLS", "base": 100,"min":100,"max": 100 },
+				{"name": "GOLD",  "base": 413, "min": 206, "max": 1032 },
+				{"name": "SILVER", "base": 14, "min": 7, "max": 35 },
+				{"name": "PORK BELLIES", "base": 20, "min": 10, "max": 50 },
+				{"name": "BLUE CHIP", "base": 49, "min": 24, "max": 122 },
+				{"name": "PENNY STOCKS", "base": 7, "min": 3, "max": 17 }
+			],
+			current_player: 0, //current player 
+			players: [], //holds player info
+			version: this.settings.version, //version of game engine
+		}
+		this.new_gamestate = {...this.gamestate}; //save for restarting
 	}
 
 	//preload is run after init, before create
@@ -83,25 +101,28 @@ export default class MainScene extends Phaser.Scene {
 		//create the background color rectangle
 		this.background_color = this.add.rectangle(0,0,this.width,this.height,0xffffff).setOrigin(0,0).setDepth(-10);
 
-		//create and initialize the timer at bottom of screen
+		//create and initialize the clock timer at bottom of screen
 		this.timer = this.add.graphics();
 		this.update_clock();
+		//this info sits on top of the timer -- dots for the clock, its rim, and the week #
+		this.clock_dots = this.add.image(159,173, "clock-dots");//.setOrigin(0)
+		//this.clock_dots.setX(this.clock_dots.x-Math.round(this.clock_dots.width/2));
+		//this.clock_dots.setY(this.clock_dots.y-Math.round(this.clock_dots.height/2));
+		this.center(this.clock_dots);
 
-		//this info sits on top of the timer
-		this.clock_dots = this.add.image(160,174, "clock-dots").setOrigin(0)
-		this.clock_dots.setX(this.clock_dots.x-Math.round(this.clock_dots.width/2));
-		this.clock_dots.setY(this.clock_dots.y-Math.round(this.clock_dots.height/2));
-		this.clock_rim = this.add.image(160,174,"clock-rim").setOrigin(0)
-			.setInteractive()
-			.on("pointerup",function() {
-				if(this.scene.player.modal) return false;
-				this.scene.game_menu();
-			})
-		this.clock_rim.setX(this.clock_rim.x-Math.round(this.clock_rim.width/2));
-		this.clock_rim.setY(this.clock_rim.y-Math.round(this.clock_rim.height/2));
+		this.clock_rim = this.add.image(159,173,"clock-rim");
+		//this.clock_rim.setX(this.clock_rim.x-Math.round(this.clock_rim.width/2));
+		//this.clock_rim.setY(this.clock_rim.y-Math.round(this.clock_rim.height/2));
+		this.center(this.clock_rim);
+		
 		this.week_no = this.add.bitmapText(this.width/2,183,"small","Week #"+String(this.gamestate.week).padStart(2," ")).setOrigin(0);
-		this.week_no.setX(this.week_no.x-Math.round(this.week_no.width/2));
+		this.centerX(this.week_no);
 
+		//clicking on the clock or the week # brings up the menu
+		this.clock_rim.setInteractive().on("pointerup",function() {
+			if(this.scene.player.modal) return false;
+			this.scene.game_menu();
+		})
 		this.week_no.setInteractive().on("pointerup",function() {
 			if(this.scene.player.modal) return false;
 			this.scene.game_menu();
@@ -119,7 +140,8 @@ export default class MainScene extends Phaser.Scene {
 					.on('pointerup',function(pointer) {
 						if(this.scene.player.modal) return false; //this shows up a lot in click code -- "modal" means "ignore player clicks"
 						var clicked_location = this.getData("id"); //look up the location they clicked on
-						if(this.scene.player.location != clicked_location) { //if they are not there already
+						this.scene.set_destination(clicked_location); //move to the location
+						/*if(this.scene.player.location != clicked_location) { //if they are not there already
 							this.scene.set_destination(clicked_location); //move to the location
 						} else { //if they are clicking on the same place they are...
 							if(this.scene.location_window) { //if they haven't left the screen at all, don't penalize them, just reload the screen
@@ -127,7 +149,7 @@ export default class MainScene extends Phaser.Scene {
 							} else { //otherwise, it takes time to go back into a location
 								this.scene.show_location(this.scene.player.location);
 							}
-						}
+						}*/
 					})
 				//debugging function to show hitboxes; if enabled in settings, will draw a stroke around hitbox
 				if((typeof this.locations[i].show_hitbox !="undefined")&&(this.locations[i].show_hitbox)||(this.settings.show_hitboxes==true)) {
@@ -136,19 +158,64 @@ export default class MainScene extends Phaser.Scene {
 				}
 			}
 		}
-		
-		//set up player graphic info
-		//if this was multiplayer, we'd need to set up all player dots
-		var loc = this.get_location(this.player.location);
-		this.player_dot = this.add.image(loc.x,loc.y,this.player.icon);
-		this.player_image = this.add.image(this.width/2,this.height/2,this.player.image).setDepth(1);
-		this.background_color.setFillStyle(this.player.background_color);
 
-		//if debug flag is set, launch the current location (don't penalize)
+		//create top menu
+		if(typeof this.menu == "undefined") {
+			var menu_config = require('./lib/top_menu.js')(this);
+			this.menu = new TopMenu(this,menu_config);
+		}
+
+		if(this.settings.auto_restore) {
+			require("./lib/restore_game.js")(this,false);
+		}
+
+		if(this.gamestate.new_game) {
+			require('./lib/new_game.js')(this);
+			return;
+		} else {
+			this.gamestate.players = [{...this.player}]
+		}
+
+		//starts the game
+		if(!this.settings.auto_restore) {
+			this.start_turn();
+		}
+
+		//if debug flag is set, launch the current location (don't penalize the player with the normal time penalty)
 		if(this.settings.open_start_location) {
 			this.show_location(this.player.location,false);
 		}
 
+	}
+
+	start_turn(restore = false) {
+		//basic turn setup
+		if(this.location_window) this.location_window.destroy();
+		this.week_no.setVisible(true);
+		var loc = this.get_location(this.player.location);
+		if(this.player_dot) this.player_dot.destroy();
+		if(this.player_image) this.player_image.destroy();
+		if(typeof this.player_numbers != "undefined") {
+			if(this.player_numbers.length>0) {
+				for(var i in this.player_numbers) {
+					this.player_numbers[i].destroy(0);
+				}
+			}
+		}
+		this.player_numbers = [];
+		this.player_numbers.push(this.add.image(68,44,"corner_icon_player_"+(this.gamestate.current_player+1)).setOrigin(0,0).setDepth(-5));
+		this.player_numbers.push(this.add.image(68,132,"corner_icon_player_"+(this.gamestate.current_player+1)).setOrigin(0,0).setDepth(-5));
+		this.player_numbers.push(this.add.image(226,44,"corner_icon_player_"+(this.gamestate.current_player+1)).setOrigin(0,0).setDepth(-5));
+		this.player_numbers.push(this.add.image(226,132,"corner_icon_player_"+(this.gamestate.current_player+1)).setOrigin(0,0).setDepth(-5));
+		this.player_dot = this.add.image(loc.x,loc.y,this.player.icon);
+		this.player_image = this.add.image(this.width/2,this.height/2,this.player.image).setDepth(1);
+		this.center(this.player_image);
+		this.background_color.setFillStyle(this.player.background_color);
+		this.player.modal = false;
+		this.update_clock();
+		if(!restore) {
+			if(this.gamestate.week>1) this.start_week();
+		}
 	}
 
 	//show the screen for a given location
@@ -166,294 +233,31 @@ export default class MainScene extends Phaser.Scene {
 
 	//code that processes the end of the week
 	end_week() {
-		require('./lib/end_week.js')(this)
+			require('./lib/end_week.js')(this)
 	}
 
 	//code that starts a new week
 	start_week() {
-		console.log("START WEEK");
-		//if this was multiplayer, would make sure other player had their turn
-		this.player.time = this.settings.hours_per_week; //reset time
-		this.update_clock();
-		this.player.modal = true; 
-
-		//check if they have won
-		if(this.settings.check_won) {
-			var wealth = (this.player.money+this.player.bank_money)/100; //should also be +investment values if implemented
-			var happiness = this.player.happiness;
-			var education = 1+(9*this.player.degrees.length);
-			var career = 1.25 * this.player.dependability;
-
-			if(
-				((wealth>=this.player.goals.wealth) &&
-				(happiness>=this.player.goals.happiness) &&
-				(education>=this.player.goals.education) &&
-				(career>=this.player.goals.career)) 
-			) {
-				this.you_won(); //trigger winning sequence
-				this.settings.check_won = false; //never check again
-				return false; //halt weekend processing
-			}
-		}
-
-		//basic updates
-		this.gamestate.week++; //advance week
-		this.week_no.setText("Week #"+this.gamestate.week);
-		this.player.visited = []; //reset each week
-		if(this.player.relaxation>10) this.player.relaxation-=10;
-		this.gamestate.economy+=Phaser.Math.FloatBetween(-0.02,0.02); //make the economy fluctuate at most 2% per week
-
-		//"Oh What a Weekend" event	
-		//if(this.location_window) this.location_window.destroy();
-		this.location_window = this.add.container(183,112).setDepth(10);
-		this.location_window.x = 68;
-		this.location_window.y = 44;
-		this.location_window.add(new Phaser.GameObjects.Image(this,0,0,"weekend").setOrigin(0));
-
-		//process event tickets
-		if(this.player.inventory.includes("Baseball Tickets")) {
-			while(this.player.inventory.includes("Baseball Tickets")) {
-				this.player.inventory.splice(this.player.inventory.indexOf("Baseball Tickets"),1);
-			}
-			var weekend = {
-				"text": "You went to a baseball game. You had a really great time waiting in line for the bathroom after waiting in line for expensive hot dogs.",
-				"cost": function() { return Phaser.Math.Between(15,55) }
-			}
-		} else if(this.player.inventory.includes("Theatre Tickets")) {
-			while(this.player.inventory.includes("Theatre Tickets")) {
-				this.player.inventory.splice(this.player.inventory.indexOf("Theatre Tickets"),1);
-			}
-			var weekend = {
-				"text": "You went to a show. You had a really great time waiting in line for the bathroom at intermission.",
-				"cost": function() { return Phaser.Math.Between(15,55) }
-			}
-		} else if(this.player.inventory.includes("Concert Tickets")) {
-			while(this.player.inventory.includes("Concert Tickets")) {
-				this.player.inventory.splice(this.player.inventory.indexOf("Concert Tickets"),1);
-			}
-			var weekend = {
-				"text": "You went to a rock concert. You had a really great time waiting in line for the bathroom while developing tinnitus.",
-				"cost": function() { return Phaser.Math.Between(15,55) }
-			}
-		} 
-
-		//if we haven't set a weekend event, pick one at random
-		if(typeof weekend == "undefined") {
-			var weekend = this.weekends[Phaser.Math.Between(0,this.weekends.length-1)];
-		}
-
-		//process weekend
-		this.location_window.add(new Phaser.GameObjects.BitmapText(this,180/2,35,"large",weekend.text,undefined,1).setMaxWidth(170).setOrigin(0.5,0));
-		var weekend_cost = 0;
-		if(typeof weekend.cost == "function") {
-			weekend_cost = weekend.cost(this);
-		} else {
-			weekend_cost = weekend.cost;
-		}
-		if(weekend_cost>0) {
-			var cost_text = "You spent $"+weekend_cost;
-		} else if (weekend.cost<0) {
-			var cost_text = "You got $"+(+weekend_cost*-1);
-		} else {
-			var cost_text = "";
-		}
-		this.location_window.add(new Phaser.GameObjects.BitmapText(this,180/2,97,"chunky",cost_text,undefined,1).setOrigin(0.5,0));
-		this.player.money-=weekend_cost;
-
-		//create an object to carry all of the weekend messages, so they aren't all released at once
-		var message_queue = [];
-
-		//check if rent is due
-		if(this.settings.check_rent) {
-			if(this.gamestate.week % 4 == 0) { //check if week is perfectly divisible by 4
-				this.player.home.rent_paid = false;
-				this.player.home.rent_extension = false;
-				message_queue.push({
-					image: "message_rent",
-					message: "$"+this.player.home.rent,
-					text_y: 68,	
-					font: "chunky"
-				})
-			} else {
-				if(this.player.turn_flags.rent_extension) {
-					this.player.home.rent_extension = true;
-				} else {
-					this.player.home.rent_extension = false;
-				}
-				if(!this.player.home.rent_paid && !this.player.home.rent_extension) {
-					this.player.home.rent_paid = true;
-					this.player.home.rent_owed+=this.player.home.rent;
-				} 
-			}
-		}
-
-		//check if clothes are worn or changed
-		if(this.settings.check_clothes) {
-			if(this.player.clothes_wear>0) this.player.clothes_wear--;
-			if(this.player.clothes_wear==1) { //last day
-				//warning message
-				message_queue.push({
-					image: "message_clothes",
-				})
-			}
-			if(this.player.clothes_wear==0) { //uh oh
-				this.player.clothes = Object.keys(this.player.outfits)[0]; //set to least formal
-				this.player.image = this.player.outfits[this.player.clothes];
-				this.player_image.destroy();
-				this.player_image = this.add.image(this.width/2,this.height/2,this.player.image).setDepth(1);
-				this.player.clothes_wear = -1; //set it to -1 so it doesn't keep triggering
-			}		
-		}
-
-		//check if the food has spoiled
-		var spoiled = false;
-		if(this.player.inventory.includes("Fresh Food")) {
-			if(!this.player.inventory.includes("Refrigerator")) {
-				while(this.player.inventory.includes("Fresh Food")) {
-					this.player.inventory.splice(this.player.inventory.indexOf("Fresh Food"),1);
-					this.player.happiness--;
-				}
-				message_queue.push({
-					image: "message_all_spoiled",
-				});
-				spoiled = true;
-			} else {
-				var foods = 0;
-				var capacity = 0;
-				for(var i in this.player.inventory) {
-					if(this.player.inventory[i]=="Fresh Food") foods++;
-				}
-				if(this.player.inventory.includes("Refrigerator")) capacity = 6;
-				if(this.player.inventory.includes("Freezer")) capacity = 12;
-				if(foods>capacity) {
-					for(var i = 0; i<(foods-capacity); i++) {
-						this.player.inventory.splice(this.player.inventory.indexOf("Fresh Food"),1);
-						this.player.happiness--;
-					}
-					message_queue.push({
-						image: "message_some_spoiled",
-					});
-					spoiled = true;
-				}
-			}
-		}
-
-		//check if they ate, and if not, if they have food in storage
-		if(this.settings.check_food) {
-			if(this.player.ate == false) {
-				if(this.player.inventory.includes("Fresh Food")) {
-					this.player.ate = true;
-					this.player.starving = false;
-					this.player.inventory.splice(this.player.inventory.indexOf("Fresh Food"),1);
-				} else {
-					//starving
-					this.player.starving = true;
-					this.subtract_time(20);
-					this.player.happiness-=2;
-					//warning message
-					message_queue.push({
-						image: "message_starvation",
-					});
-				}
-			} else {
-				//reset for new week
-				this.player.ate = false;
-				this.player.starving = false;
-			}
-		}
-
-		//check if doctor visit 
-		var doctor_visit = false;
-		if(this.settings.check_doctor) {
-			if(this.player.money>0) {
-				if(this.player.relaxation == 10) {
-					if(Phaser.Math.Between(0,100)<=20) doctor_visit = true;
-				}
-				if(this.player.starving) {
-					if(Phaser.Math.Between(0,100)<=25) doctor_visit = true;
-				}
-				if(spoiled) {
-					if(Phaser.Math.Between(0,100)<=50) doctor_visit = true;
-				}
-			}
-		}
-		if(doctor_visit) {
-			this.subtract_time(10);
-			this.player.happiness-=4;
-			if(this.player.happiness<0) this.player.happiness = 0;
-			//cost of doctor is random based on how much money the player has
-			var doctor_cost = 0;
-			if(this.player.money>=500) {
-				doctor_cost = Phaser.Math.Between(30,200);
-			} else if(this.player.money>=50) {
-				doctor_cost = Phaser.Math.Between(30,50);
-			} else if(this.player.money>=31) {
-				doctor_cost = Phaser.Math.Between(30,this.player.money);
-			} else {
-				doctor_cost = this.player.money;
-			} 
-			this.player.money-=doctor_cost;
-			message_queue.push({
-				image: "message_doctor",
-				message: "$"+doctor_cost,
-				text_y: 64,
-				font: "chunky"
-			});
-		}
-
-		//make sure they haven't gone into the negative on any stats
-		if(this.player.money<0) this.player.money = 0;
-		if(this.player.happiness<0) this.player.happiness = 0;
-
-		//display player money (not done in original game, but should be)
-		this.show_money();
-
-		//these turn_flags are reset each week
-		this.player.turn_flags = {}; 
-		this.gamestate.turn_flags = {}; //note that for multiplayer this would have to be called after all players had gone
-
-		//create the DONE button 
-		var button_left = 144;
-		var btn_done = this.bottom_button("btn-done",button_left,function(scene) {
-			scene.hide_money();
-			if(scene.player.time <= 0) scene.end_week();
-			scene.location_window.destroy();
-		})
-		this.location_window.add(btn_done);
-
-		//show all messages in queue -- recursive
-		if(message_queue.length) {
-			var next_message = {
-				display_time: 4000,
-				drop_in: true,
-				fade_out: true,
-				depth: -10,
-				callback: function(scene) {
-					message_queue.splice(0,1);
-					if(message_queue.length) {
-						scene.show_message({...next_message,...message_queue[0]})
-					}
-					scene.player.modal = false;
-				}
-			}
-			this.show_message({...next_message,...message_queue[0]})
-		} else {
-			this.player.modal = false;
-		}
+		require('./lib/start_week.js')(this)
 	}
 
 	//function to subtract some amount of time (hours) and update the clock
 	subtract_time(hours) {
-		console.log("subtract_time",hours);
+		//console.log("subtract_time",hours);
 		this.player.time-=hours;
 		if(this.player.time<0) this.player.time = 0;
 		this.update_clock();
 	}
-	
-	//function to update the clock timer
+
+	//function that is run whenever they click the 'work' button
+	work(location) {
+		require('./lib/work.js')(this,location)
+	}
+
+	//function to update the clock timer appearance
 	update_clock() {
-		console.log("update_clock", this.player.time);
-		var angle = ((this.settings.hours_per_week-this.player.time)/this.settings.hours_per_week)*360;
+		//console.log("update_clock", this.player.time);
+		var angle = ((this.player.hours_per_week-this.player.time)/this.player.hours_per_week)*360;
 		this.timer.clear();
 		this.timer.fillStyle(0xec1730,1);
 		this.timer.slice(159,173,8.5,-90*Phaser.Math.DEG_TO_RAD,(angle-90)*Phaser.Math.DEG_TO_RAD);
@@ -510,18 +314,47 @@ export default class MainScene extends Phaser.Scene {
 	}
 	
 	//adds buttons to bottom of location_window
-	bottom_button(img,x,onclick,location) {
-		return require('./lib/bottom_button.js')(this,img,x,onclick,location)
+	bottom_button(img,x,onclick,location,ignore_modal) {
+		return require('./lib/bottom_button.js')(this,img,x,onclick,location,ignore_modal)
 	}
 
 	//a game menu -- uses same framework as the location system
 	game_menu = function() {
-		require('./lib/game_menu.js')(this,ScrollText)
+		require('./lib/game_menu.js')(this)
 	}
 
+	//show the screen for a given location
+	player_score(player) {
+		return require('./lib/player_score.js')(this,player);
+	}
+	
 	//ridiculous screen shown on winning the game
 	you_won = function() {
 		require('./lib/winner.js')(this)
+	}
+
+	//checks a player's inventory -- right now this is very simple,
+	//but in the future, if we want a more complicated inventory system,
+	//this will make it a lot easier to adapt.
+	inventory_has_item(item,player) {
+		var player = (typeof player=="undefined")?this.player:player;
+		if(player.inventory.includes(item)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	//removes an item from the player inventory
+	inventory_remove_item(item,player) {
+		var player = (typeof player=="undefined")?this.player:player;
+		player.inventory.splice(player.inventory.indexOf(item),1);
+	}
+
+	//adds an item to the player inventory
+	inventory_add_item(item, player) {
+		var player = (typeof player=="undefined")?this.player:player;
+		player.inventory.push(item);
 	}
 
 	//Phaser can run in two modes -- WebGL and Canvas.
@@ -535,5 +368,52 @@ export default class MainScene extends Phaser.Scene {
 			return true;
 		}
 	}
+
+	//pauses all tweens
+	//note that this won't stop new tweens from being created and run
+	pause = function() {
+		console.log("pause");
+		var tweens = this.tweens.getAllTweens();
+		for(var i in tweens) {
+			tweens[i].pause();
+		}
+	}
+	//resumes paused tweens
+	resume = function() {
+		console.log("resume");
+		var tweens = this.tweens.getAllTweens();
+		for(var i in tweens) {
+			tweens[i].resume();
+		}
+	}
+
+	//these centering functions ought to eliminate blurring in Canvas mode
+	center = function(obj,width,height) {
+		this.centerX(obj,width);
+		this.centerY(obj,height);
+	}
+	
+	centerX = function(obj,width) {
+		var w = typeof width=="undefined"?obj.width:width;
+		obj.setOrigin(0,obj.displayOriginY);
+		obj.setX(obj.x-Math.round(w)/2);
+	}
+
+	centerY = function(obj,height) {
+		var h = typeof height=="undefined"?obj.height:height;
+		obj.setOrigin(obj.displayOriginX,0);
+		obj.setY(obj.y-Math.round(h)/2);
+	}
+
+	/* These exports these custom UI elements as part of the scene object. */
+	scrollText = ScrollText;
+	scrollList = ScrollList; 
+	modalMessage = ModalMessage;
+
+	//simple linear interpolation; returns x3 
+	lerp = function(x1,y1,x2,y2,y3) {
+		return ((y2-y3) * x1 + (y3-y1) * x2)/(y2-y1);
+	}
+	
 
 }

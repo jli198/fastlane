@@ -86,7 +86,8 @@
 
 	//each of these locations is stored in a separate file in the locations directory,
 	//because otherwise it would a huge amount of code in one file.
-var path = "./locations/";
+
+	var path = "./locations/";
 module.exports = [
 	require(path+'low_cost_housing.js'),
 	require(path+'pawn_shop.js'),

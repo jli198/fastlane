@@ -21,33 +21,34 @@ module.exports = function(scene){
 			sendHome = false;
 		}
 	}
-
-	if(sendHome) {
-		scene.player.location = scene.player.home.location;
-		scene.player.modal = true;
-		scene.player.travel_path = [];
-		var loc = scene.get_location(scene.player.location);
-		scene.tweens.add({
-			targets: scene.player_dot,
-			x: loc.x,
-			y: loc.y,
-			duration: 300,
-			onCompleteParams: {scene: scene},
-			onComplete: function() {
-				var scene = this.parent.scene; //get the scene object
-				if(scene.player_walk_tween) {
-					scene.player_walk_tween.stop();
-					scene.player_walk_tween = undefined;
-				}
-				scene.start_week();
+	if(scene.location_window) scene.location_window.destroy();
+	scene.player.location = scene.player.home.location;
+	scene.player.modal = true;
+	scene.player.travel_path = [];
+	var loc = scene.get_location(scene.player.location);
+	scene.tweens.add({
+		targets: scene.player_dot,
+		x: loc.x,
+		y: loc.y,
+		duration: sendHome?300:0,
+		onCompleteParams: {scene: scene},
+		onComplete: function() {
+			var scene = this.parent.scene; //get the scene object
+			if(scene.player_walk_tween) {
+				scene.player_walk_tween.stop();
+				scene.player_walk_tween = undefined;
 			}
-		})
-	} else {
-		//even if they are home, make sure they aren't walking
-		if(scene.player_walk_tween) {
-			scene.player_walk_tween.stop();
-			scene.player_walk_tween = undefined;
+
+			scene.gamestate.players[scene.gamestate.current_player] = Object.assign({},scene.player); //save player data
+			if(scene.gamestate.current_player<scene.gamestate.players.length-1) {
+				scene.gamestate.current_player++;
+			} else {
+				scene.gamestate.current_player=0;
+				scene.gamestate.week++;
+			}
+			scene.player = Object.assign({},scene.gamestate.players[scene.gamestate.current_player]);
+			scene.start_turn();
 		}
-		scene.start_week();
-	}
+	})
+
 }

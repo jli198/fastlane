@@ -67,7 +67,7 @@ module.exports = {
 			{	//RELAX button
 				"image": "btn-relax",
 				"onclick": function(scene,location) {
-					if(scene.player.time>=6) {
+					if(scene.player.time>0) {
 						scene.subtract_time(6);
 						if(typeof scene.player.turn_flags.relaxed == "undefined") {
 							scene.player.happiness+=2;

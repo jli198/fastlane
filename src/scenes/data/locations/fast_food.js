@@ -18,6 +18,8 @@ module.exports = {
 			"x1":252, "y1": 45,
 			"x2":312, "y2": 82,
 			"image": "place_burgers",
+			"item_image_x": 0,
+			"item_image_y": 57,
 			"speech": {
 				"image": "speech_bubble_r_t",
 				"image_x": 14,
@@ -50,6 +52,7 @@ module.exports = {
 			"items": [
 				{
 					"name": "Hamburgers",
+					"image": "item_burger",
 					"x": 5,
 					"price": 79,
 					"use": function(scene) {
@@ -59,6 +62,7 @@ module.exports = {
 				},
 				{
 					"name": "Cheeseburgers",
+					"image": "item_cheeseburger",
 					"price": 89,
 					"use": function(scene) {
 						scene.player.ate = true;
@@ -68,6 +72,7 @@ module.exports = {
 				},
 				{
 					"name": "100% Chicken",
+					"image": "item_chicken",
 					"price": 124,
 					"x": 73,
 					"use": function(scene,item) {
@@ -78,6 +83,7 @@ module.exports = {
 				},
 				{
 					"name": "Fries",
+					"image": "item_fries",
 					"price": 65,
 					"use": function(scene,item) {
 						scene.player.ate = true;
@@ -86,6 +92,7 @@ module.exports = {
 				},
 				{
 					"name": "Shakes",
+					"image": "item_shake",
 					"price": 102,
 					"use": function(scene,item) {
 						scene.player.happiness+=2;

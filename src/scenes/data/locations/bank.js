@@ -21,6 +21,8 @@ module.exports = {
 	"x1":8, "y1": 120,
 	"x2":67, "y2": 155,
 	"image": "place_bank",
+	"item_image_x": 0,
+	"item_image_y": 57,
 	"speech": {
 		"image": "speech_bubble_l_t",
 		"image_x": 48,
@@ -137,14 +139,15 @@ module.exports = {
 				txt.setX(txt.x-Math.round(txt.width/2));
 				stock_market.add(txt);
 
-				var stocks = [
-					{"name": "T-BILLS", "price": 100},
-					{"name": "GOLD", "price": Math.min(Math.max(Math.round(413*scene.gamestate.economy),206),1032)},
-					{"name": "SILVER", "price": Math.min(Math.max(Math.round(14*scene.gamestate.economy),7),35)},
-					{"name": "PORK BELLIES", "price": Math.min(Math.max(Math.round(20*scene.gamestate.economy),10),50)},
-					{"name": "BLUE CHIP", "price": Math.min(Math.max(Math.round(49*scene.gamestate.economy),24),122)},
-					{"name": "PENNY STOCKS", "price": Math.min(Math.max(Math.round(7*scene.gamestate.economy),3),17)}
-				]
+				//calculate stock prices
+				var stocks = [];
+				for(var i in scene.gamestate.stocks) {
+					stocks.push({
+						"name": scene.gamestate.stocks[i].name,
+						"price": Math.min(Math.max(Math.round(scene.gamestate.stocks[i].base*scene.gamestate.economy),scene.gamestate.stocks[i].min),scene.gamestate.stocks[i].max)
+					})
+				}
+
 				var button_offset_y = 13;
 				var button_y = 15+button_offset_y;
 				var text_y = 30;

@@ -49,6 +49,11 @@ module.exports = {
 						 * gets an event attached to it that allows the player to apply to the job when they
 						 * click on it. it's kind of complicated but it gives you a sense of how much flexibility
 						 * this system has.
+						 * 
+						 * In retrospect, this is a dumb way to do it. Would be better to set up a 
+						 * dynamic location object. A lot less work, anyway. Like this code below
+						 * is handling the mouseovers and all that. Totally unnecessary. 
+						 * 
 						 */
 						var job_listing = new Phaser.GameObjects.Container(scene,1,14);
 						var job_background = new Phaser.GameObjects.Rectangle(scene,0,0,181,97,0xdfcca1).setOrigin(0,0).setInteractive();

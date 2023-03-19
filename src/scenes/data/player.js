@@ -37,7 +37,7 @@ module.exports = {
 		"starving": false, //did they not eat last week
 		"clothes": "casual", //type of clothes worn
 		"clothes_wear": 9, //weeks until breaks
-		"inventory": [], //holds any items bought
+		"inventory": [], //holds any items purchased
 		"happiness": 0, //happiness meter
 		"degrees": [], //list of degrees obtained
 		"visited": [], //list of places visited this week
@@ -53,6 +53,7 @@ module.exports = {
 		},
 		"turn_flags": {}, //this is cleared every turn
 		"travel_path": [], //list of ids they are traveling to
-		"time": 60, //how many hours left in the week for player (60 max)
+		"time": 60, //how many hours left in the week for player
+		"hours_per_week": 60, //how many hours the player has per week maximum (time gets reset to this every week)
 		"modal": false, //whether we ignore clicks to travel, buttons, etc.
 	}

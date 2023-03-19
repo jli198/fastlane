@@ -17,6 +17,8 @@ module.exports = {
 	"x1":252, "y1":  9,
 	"x2":312, "y2": 44,
 	"image": "place_zmart",
+	"item_image_x": 0,
+	"item_image_y": 57,
 	"speech": {
 		"image": "speech_bubble_r_t",
 		"image_x": 14,
@@ -52,7 +54,7 @@ module.exports = {
 				"price": 650,
 				"message": "Hey, that's pretty cool!\n\n...Get it, man?",
 				"buy": function(scene,item,location) { 
-					if(scene.player.inventory.includes(item.name)) {
+					if(scene.inventory_has_item(item.name)) {
 						scene.show_message({...location.speech,...{
 							message: "You already have one of these, you don't need two!"
 						}});
@@ -63,37 +65,37 @@ module.exports = {
 						return false;
 					}
 				},
-				"use": function(scene,item) { scene.player.inventory.push(item.name); }
+				"use": function(scene,item) { scene.inventory_add_item(item.name); }
 			},				
 			{
 				"name": "Stove",
 				"price": 490,
 				"message": "Don't burn your house down, man!",
-				"use": function(scene,item) { scene.player.inventory.push(item.name); }
+				"use": function(scene,item) { scene.inventory_add_item(item.name); }
 			},
 			{
 				"name": "Color TV",
 				"price": 349,
 				"message": "Isn't it impressive that 'color' is an important adjective here, man?",
-				"use": function(scene,item) { scene.player.inventory.push(item.name); }
+				"use": function(scene,item) { scene.inventory_add_item(item.name); }
 			},
 			{
 				"name": "VCR",
 				"price": 250,
 				"message": "If I made a Betamax joke, would you even get it, man?",
-				"use": function(scene,item) { scene.player.inventory.push(item.name); }
+				"use": function(scene,item) { scene.inventory_add_item(item.name); }
 			},
 			{
 				"name": "Stereo",
 				"price": 450,
 				"message": "Featuring innovative cassette technology, man!",
-				"use": function(scene,item) { scene.player.inventory.push(item.name); }
+				"use": function(scene,item) { scene.inventory_add_item(item.name); }
 			},
 			{
 				"name": "Microwave",
 				"price": 220,
 				"message": "The cooking instrument of champions, man!",
-				"use": function(scene,item) { scene.player.inventory.push(item.name); }
+				"use": function(scene,item) { scene.inventory_add_item(item.name); }
 			},
 			{
 				"name": "Dress Clothes",
@@ -129,7 +131,7 @@ module.exports = {
 						scene.player.turn_flags.ticket_bought = true;
 						scene.player.happiness+=2
 					}
-					scene.player.inventory.push(item.name);
+					scene.inventory_add_item(item.name);
 				}
 			},
 			{
@@ -141,7 +143,7 @@ module.exports = {
 						scene.player.turn_flags.ticket_bought = true;
 						scene.player.happiness+=2
 					}
-					scene.player.inventory.push(item.name);
+					scene.inventory_add_item(item.name);
 				}
 			},
 			{
@@ -153,7 +155,7 @@ module.exports = {
 						scene.player.turn_flags.ticket_bought = true;
 						scene.player.happiness+=2
 					}
-					scene.player.inventory.push(item.name);
+					scene.inventory_add_item(item.name);
 				}
 			},	
 			{
