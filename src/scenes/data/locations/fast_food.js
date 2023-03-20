@@ -12,8 +12,8 @@
  * 
  */
 module.exports = {
-			"id": "fast_food",
-			"name": "Nariman Burgers",
+			"id": "Shake_Smack",
+			"name": "Shake Smack",
 			"x": 288, "y":  75,
 			"x1":252, "y1": 45,
 			"x2":312, "y2": 82,
@@ -31,10 +31,10 @@ module.exports = {
 				"mouth_y": 33,		
 			},
 			"welcomes": [
-				"Welcome to Nariman Burgers, where our burgers definitely seem like real burgers!",
-				"Welcome to Nariman Burgers, Home of the Innovation Burger!",
-				"Welcome to Nariman Burgers! We're inspired by burgers, powered by money!",
-				"Welcome to Nariman Burgers! Please ignore the protesters out front! They hate freedom!",
+				"Welcome to Shake Smack, where our burgers definitely seem like real burgers!",
+				"Welcome to Shake Smack, Home of the Innovation Burger!",
+				"Welcome to Shake Smack! We're inspired by burgers, powered by money!",
+				"Welcome to Shake Smack! Please ignore the protesters out front! They hate freedom!",
 			],
 			"item_color": 0x652327,
 			"item_hover": 0xb00036,
