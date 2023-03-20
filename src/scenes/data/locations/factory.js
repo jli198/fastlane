@@ -1,10 +1,10 @@
 
 /* 
- * The Factory is a place that offers jobs and nothing else. I have not implemented it here yet.
+ * The Health Center is where to go if a player gets sick (Doctor’s Office) to be checked up. This will cost a fee.
  */
 module.exports = {
-	"id": "factory",
-	"name": "Factory",
+	"id": "Health_Center",
+	"name": "Health Center",
 	"x":  49, "y": 181,
 	"x1":  8, "y1": 156,
 	"x2": 67, "y2": 193,

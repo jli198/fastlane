@@ -11,8 +11,8 @@
  * one wanted to implement the other system.
 */
 module.exports = {
-	"id": "discount",
-	"name": "S-Mart Discount",
+	"id": "ACK_ME",
+	"name": "ACK ME",
 	"x": 282, "y":  35,
 	"x1":252, "y1":  9,
 	"x2":312, "y2": 44,
@@ -30,7 +30,7 @@ module.exports = {
 		"mouth_y": 33,		
 	},
 	"welcomes": [
-		"Welcome to S-Mart, where only the s-mart people s-hop!",
+		"Welcome to ACK ME, where only smart people shop!",
 	],
 	"item_color": 0x0f4a37,
 	"item_spacing": 13,

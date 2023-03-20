@@ -4,7 +4,7 @@
  * Its x and y is just a waypoint that the player dot passes through.
  */
  module.exports = {
-	"id": "park_lower_right",
+	"id": "Church Square Park",
 	"x": 299, "y": 136
 }
 

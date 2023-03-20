@@ -8,7 +8,7 @@
  * 
 */
 module.exports = {
-	"id": "pawn_shop",
+	"id": "Lacking_Wanna_Terminal",
 	"x": 221, "y":  35,
 	"x1":192, "y1":  9,
 	"x2":250, "y2": 44,

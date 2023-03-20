@@ -8,8 +8,8 @@
  */
 module.exports = 
 {
-	"id": "market",
-	"name": "Duck's Market",
+	"id": "Washington_Street",
+	"name": "Washington Street",
 	"x":  45, "y": 105,
 	"x1": 8, "y1": 83,
 	"x2": 67, "y2": 119,

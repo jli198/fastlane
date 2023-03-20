@@ -13,7 +13,7 @@ Slightly tricky things:
 
 */
 module.exports = {
-	"id": "low_cost_housing", 
+	"id": "Hudsucker_Dorms", 
 	"x": 144, "y":  35,
 	"x1":131, "y1":  9,
 	"x2":190, "y2": 44,
