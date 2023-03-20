@@ -88,26 +88,26 @@ module.exports = {
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
-			"name": "Color TV",
-			"price": 513,
+			"name": "4K TV",
+			"price": 1000,
 			"x": 5,
 			"y": 1,
 			"pawnable": true,
-			"message": "Isn't it impressive that 'color' is an important adjective here?",
+			"message": "MKBHD approved",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
-			"name": "VCR",
-			"price": 333,
+			"name": "Headphones",
+			"price": 300,
 			"pawnable": true,
-			"message": "If I made a Betamax joke, would you even get it?",
+			"message": "At least it's not Beats",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
-			"name": "Stereo",
-			"price": 412,
+			"name": "Stereo Speakers",
+			"price": 800,
 			"pawnable": true,
-			"message": "Featuring innovative cassette technology!",
+			"message": "Sing along to my stereo!",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
@@ -119,14 +119,14 @@ module.exports = {
 		},
 		{
 			"name": "Hot Tub",
-			"price": 1255,
+			"price": 1500,
 			"pawnable": true,
 			"message": "Are you sure your lease will allow this?",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Computer",
-			"price": 1599,
+			"price": 1000,
 			"pawnable": true,
 			"message": "Someday you'll be able to surf the Internet, I imagine!",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
