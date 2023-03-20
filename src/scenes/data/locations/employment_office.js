@@ -12,7 +12,7 @@
  * screen). 
  */
 module.exports = {
-	"id": "employment_office",
+	"id": "How?_Center",
 	"x":  97, "y": 183,
 	"x1": 69, "y1": 156,
 	"x2":128, "y2": 193,

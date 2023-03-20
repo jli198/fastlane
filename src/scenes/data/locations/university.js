@@ -22,8 +22,8 @@
  * property to prompt the player to say "Yes" or "No" to enrolling (the Rent Office also does this).
 */
 module.exports = {
-	"id": "university",
-	"name": "Innovation Institute",
+	"id": "library",
+	"name": "Stefan Librotorium",
 	"x": 220, "y": 180,
 	"x1":190, "y1": 156,
 	"x2":251, "y2": 193,
@@ -42,7 +42,7 @@ module.exports = {
 	},
 	"jobs": [
 		{
-			"name": "Janitor",
+			"name": "Library Assistant",
 			"wage": 5,
 			"experience": 10,
 			"dependability": 10,
@@ -50,19 +50,19 @@ module.exports = {
 			"uniform": "casual"
 		},
 		{
-			"name": "Teacher",
+			"name": "Tutor",
 			"wage": 11,
 			"experience": 40,
 			"dependability": 50,
-			"degrees": ["Academic"],
+			"degrees": [],
 			"uniform": "dress"
 		},
 		{
-			"name": "Professor",
+			"name": "Librarian",
 			"wage": 20,
 			"experience": 50,
 			"dependability": 60,
-			"degrees": ["Research"],
+			"degrees": ["Bach Arts"],
 			"uniform": "dress"
 		},
 	],
@@ -74,9 +74,19 @@ module.exports = {
 		"Welcome to Innovation Institute! Nevermind your grades, how high is your credit score?",
 	],
 	"degrees": [ //this has no intrinsic meaning, but is used by items functions below
-		{name:"Jr. College", longname:"Junior College", requires:false},
+		
+    {name: "Bach Eng", longname: "Bachelors of Engineering", requires:false},
+    {name: "Bach CS", longname: "Bachelors in Computer Science", requires:false},
+    {name: "Bach Business", longname: "Bachelors in Business", requires:false},
+    {name: "Bach Arts", longname: "Bachelors in Liberal Arts", requires:false},
+    {name: "MBA", longname: "Masters in Business Administration", requires: ["Bach Eng","Bach CS", "Bach Business"]},
+    {name: "M Eng", longname: "Masters in Engineering", requires:["Bach Eng", "Bach CS"]},
+    {name: "M CS", longname: "Masters in Computer Science", requires: ["Bach Eng", "Bach CS", "Bach Business", "Bach Liberal Arts"]},
+    {name: "M Liberal Arts", longname: "Masters in Liberal Arts", requires: "Bach Arts"}
+    /*
+    {name:"Jr. College", longname:"Junior College", requires:false},
 		{name:"Trade Sch.", longname:"Trade School", requires:false},
-		{name:"Bus. Admin", longname:"Business Admin",requires:"Jr. College"},
+		{name:"Bus. Admin", longname:"Business Admin",requires: ["Jr. College", "Trade Sch."]},
 		{name:"Academic", longname:"Academic",requires:"Jr. College"},
 		{name:"Electronics",longname:"Electroncs", requires:"Trade Sch."},
 		{name:"Pre-Engineer.", longname:"Pre-Engineering",requires:"Trade Sch."},
@@ -85,6 +95,7 @@ module.exports = {
 		{name:"Post-Doc",longname:"Post-Doctoral",requires:"Grad School"},
 		{name:"Research", longname:"Research",requires:"Post-Doc"},
 		{name:"Publishing", longname: "Publishing", requires:"Research"}
+    */
 	],
 	"items": function(scene,location) {
 		//create the degree list -- heavily customized from default behavior!
@@ -98,11 +109,24 @@ module.exports = {
 		//for each degree
 		for(var i in degrees) {
 			var degree = degrees[i];
+      var has_requirements = false;
+      if(Array.isArray(degree.requires)) {
+        for(var z in degree.requires) {
+          if(scene.player.degrees.includes(degree.requires[z])) {
+            has_requirements = true;
+          }
+        }
+      } else if(degree.requires!==false) {
+        if(scene.player.degrees.includes(degree.requires)) {
+          has_requirements = true;
+        }
+      } else if(degree.requires==false) {
+        has_requirements = true;
+      }
 			if(
 				//check if the degree should be displayed 
-				((degree.requires == false) || 
-				scene.player.degrees.includes(degree.requires)) &&
-				(!scene.player.degrees.includes(degree.name))
+				(has_requirements &&
+				(!scene.player.degrees.includes(degree.name)))
 			) {	
 				//if it is to be displayed, make a container with the book image and text
 				var book = new Phaser.GameObjects.Container(scene,0,0);
