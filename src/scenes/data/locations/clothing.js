@@ -1,6 +1,6 @@
 
 /* 
- * The clothing store sells clothes, and is a place the player can work.
+ * The Nike store sells clothes, and is a place the player can work.
  * 
  * The only tricky thing here is that the player's outfit needs to be changed,
  * which also changes the image that is used for the player in the game. So you can
@@ -9,8 +9,8 @@
  * 
  */
 module.exports = {
-	"id": "clothing",
-	"name": "ROI Clothing",
+	"id": "Nike",
+	"name": "Nike",
 	"x": 277, "y": 115,
 	"x1":252, "y1": 83,
 	"x2":312, "y2": 119,
@@ -38,7 +38,7 @@ module.exports = {
 		}
 	],
 	"welcomes": [
-		"Welcome to ROI Clothing, where you'll look like a million bucks!",
+		"Welcome to Nike, where you'll look like a million bucks!",
 	],
 	"item_color": 0x000100,
 	"item_spacing": 15,

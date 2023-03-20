@@ -1,6 +1,6 @@
 
 /* 
- * The appliance store sells appliances.
+ * Targe sells appliances.
  * These get added to scene.player.inventory. The only complicated part is
  * that for some of them (like the Refrigerator and Freezer), it refuses to allow
  * the player to buy more than one. To do this, it uses the buy() function, which is
@@ -10,8 +10,8 @@
  * the item has `check_price` set to false.
 */
 module.exports = {
-	"id": "appliances",
-	"name": "Student City Appliance",
+	"id": "Targe",
+	"name": "Targe",
 	"x": 276, "y": 183,
 	"x1":252, "y1": 156,
 	"x2":312, "y2": 193,
@@ -39,7 +39,7 @@ module.exports = {
 		}
 	],
 	"welcomes": [
-		"Welcome to Student City! Time to spend!",
+		"Welcome to Targe! Time to spend!",
 	],
 	"item_color": 0x144b64,
 	"item_offset_y": -3,
