@@ -114,21 +114,21 @@ module.exports = {
 			"name": "Microwave",
 			"price": 330,
 			"pawnable": true,
-			"message": "The cooking instrument of champions!",
+			"message": "David Chang approved!",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Hot Tub",
 			"price": 1500,
 			"pawnable": true,
-			"message": "Are you sure your lease will allow this?",
+			"message": "You could use that as a time machine!",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Computer",
 			"price": 1000,
 			"pawnable": true,
-			"message": "Someday you'll be able to surf the Internet, I imagine!",
+			"message": "Are you gonna use that for ChatGPT?",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 	]

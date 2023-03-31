@@ -14,7 +14,7 @@ module.exports = {
 	"x": 277, "y": 115,
 	"x1":252, "y1": 83,
 	"x2":312, "y2": 119,
-	"image": "place_clothing",
+	"image": "place_nike",
 	"item_image_x": 0,
 	"item_image_y": 57,
 	"speech": {
