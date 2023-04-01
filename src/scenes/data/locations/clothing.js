@@ -1,6 +1,6 @@
 
 /* 
- * The clothing store sells clothes, and is a place the player can work.
+ * The Nike store sells clothes, and is a place the player can work.
  * 
  * The only tricky thing here is that the player's outfit needs to be changed,
  * which also changes the image that is used for the player in the game. So you can
@@ -9,12 +9,12 @@
  * 
  */
 module.exports = {
-	"id": "clothing",
-	"name": "ROI Clothing",
+	"id": "Nike",
+	"name": "Nike",
 	"x": 277, "y": 115,
 	"x1":252, "y1": 83,
 	"x2":312, "y2": 119,
-	"image": "place_clothing",
+	"image": "place_nike",
 	"item_image_x": 0,
 	"item_image_y": 57,
 	"speech": {
@@ -30,7 +30,7 @@ module.exports = {
 	"jobs": [
 		{
 			"name": "Salesperson",
-			"wage": 8,
+			"wage": 17,
 			"experience": 30,
 			"dependability": 30,
 			"degrees": [],
@@ -38,7 +38,8 @@ module.exports = {
 		}
 	],
 	"welcomes": [
-		"Welcome to ROI Clothing, where you'll look like a million bucks!",
+		"Welcome to Nike, just do it!",
+    "You know I'm trying to be hip too!",
 	],
 	"item_color": 0x000100,
 	"item_spacing": 15,
@@ -48,7 +49,7 @@ module.exports = {
 			"name": "Business Suit",
 			"price": 295,
 			"x": 73,
-			"message": "Damn, it feels good to be an innovator!",
+			"message": "Why of all places would you choose Nike to buy a suit!?!?",
 			"use": function(scene,item) { 
 				scene.player.clothes = "business"; 
 				scene.player.image = scene.player.outfits[scene.player.clothes];
@@ -62,7 +63,7 @@ module.exports = {
 		{
 			"name": "Dress Clothes",
 			"price": 125,
-			"message": "You look like someone with some money and style!",
+			"message": "Sorry, we only got Polos",
 			"use": function(scene,item) { 
 				scene.player.clothes = "dress";
 				scene.player.image = scene.player.outfits[scene.player.clothes];
@@ -76,7 +77,7 @@ module.exports = {
 		{
 			"name": "Casual Clothes",
 			"price": 73,
-			"message": "New clothes can't hurt!",
+			"message": "Fly high like an eagle! Wait, no.",
 			"use": function(scene,item) { 
 				scene.player.clothes = "casual"; 
 				scene.player.image = scene.player.outfits[scene.player.clothes];

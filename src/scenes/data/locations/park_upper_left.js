@@ -7,7 +7,7 @@
  * 
  */
 module.exports = {
-	"id": "park_upper_left",
+	"id": "Hoboken Pier",
 	"x": 40, "y": 63,
 	"x1": 40-30, "y1": 63-15,
 	"x2": 40+25, "y2": 63+15,
@@ -19,6 +19,6 @@ module.exports = {
 	"item_offset_y": 10,
 	"item_spacing": 30,
 	"welcomes": [
-		"It's a beautiful day."
+		"Ah look at all that sludge!"
 	]
 }

@@ -1,6 +1,6 @@
 
 /* 
- * The appliance store sells appliances.
+ * Targe sells appliances.
  * These get added to scene.player.inventory. The only complicated part is
  * that for some of them (like the Refrigerator and Freezer), it refuses to allow
  * the player to buy more than one. To do this, it uses the buy() function, which is
@@ -10,8 +10,8 @@
  * the item has `check_price` set to false.
 */
 module.exports = {
-	"id": "appliances",
-	"name": "Student City Appliance",
+	"id": "Targe",
+	"name": "Targe",
 	"x": 276, "y": 183,
 	"x1":252, "y1": 156,
 	"x2":312, "y2": 193,
@@ -31,7 +31,7 @@ module.exports = {
 	"jobs": [
 		{
 			"name": "Salesperson",
-			"wage": 7,
+			"wage": 18,
 			"experience": 30,
 			"dependability": 30,
 			"degrees": [],
@@ -39,7 +39,7 @@ module.exports = {
 		}
 	],
 	"welcomes": [
-		"Welcome to Student City! Time to spend!",
+		"Welcome to Targe! Time to spend!",
 	],
 	"item_color": 0x144b64,
 	"item_offset_y": -3,
@@ -88,47 +88,47 @@ module.exports = {
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
-			"name": "Color TV",
-			"price": 513,
+			"name": "4K TV",
+			"price": 1000,
 			"x": 5,
 			"y": 1,
 			"pawnable": true,
-			"message": "Isn't it impressive that 'color' is an important adjective here?",
+			"message": "MKBHD approved",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
-			"name": "VCR",
-			"price": 333,
+			"name": "Headphones",
+			"price": 300,
 			"pawnable": true,
-			"message": "If I made a Betamax joke, would you even get it?",
+			"message": "At least it's not Beats",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
-			"name": "Stereo",
-			"price": 412,
+			"name": "Stereo Speakers",
+			"price": 800,
 			"pawnable": true,
-			"message": "Featuring innovative cassette technology!",
+			"message": "Sing along to my stereo!",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Microwave",
 			"price": 330,
 			"pawnable": true,
-			"message": "The cooking instrument of champions!",
+			"message": "David Chang approved!",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Hot Tub",
-			"price": 1255,
+			"price": 1500,
 			"pawnable": true,
-			"message": "Are you sure your lease will allow this?",
+			"message": "You could use that as a time machine!",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 		{
 			"name": "Computer",
-			"price": 1599,
+			"price": 1000,
 			"pawnable": true,
-			"message": "Someday you'll be able to surf the Internet, I imagine!",
+			"message": "Don't be a crypto bro",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 	]

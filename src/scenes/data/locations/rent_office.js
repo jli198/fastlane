@@ -7,8 +7,8 @@
  * it also allows them to pay it off, if they have the money.
  */
 module.exports = {
-	"id": "rent_office",
-	"name": "Rent Office",
+	"id": "UCC_Towers",
+	"name": "UCC Towers",
 	"x": 105, "y":  35,
 	"x1": 68, "y1":  9,
 	"x2":128, "y2": 44,

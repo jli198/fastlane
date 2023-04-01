@@ -1,7 +1,8 @@
 
 /* 
- * The bank is a place where the player can store money, apply for a loan, and gamble on the 
- * stock market. 
+ * The Wall Street Bets Bank is a place where the player may deposit or withdraw money from the bank, 
+ * may apply for a loan (which is dependent on how much money they have and their job), pay loan payments,
+ * and visit the Stock Broker, where they can buy and sell stocks. 
  * 
  * The code below shows how to do the basic deposit/withdraw operations (very simple), and
  * more complexly creates a stockmarket submenu. The fluctuation of stocks is much simpler
@@ -15,8 +16,8 @@
  * in the bank. 
  */
 module.exports = {
-	"id": "bank",
-	"name": "Bank",
+	"id": "Wall_Street_Bets_Bank",
+	"name": "Wall Street Bets Bank",
 	"x":  21, "y": 145,
 	"x1":8, "y1": 120,
 	"x2":67, "y2": 155,
@@ -39,7 +40,7 @@ module.exports = {
 	"jobs": [
 		{
 			"name": "Janitor",
-			"wage": 6,
+			"wage": 14,
 			"experience": 10,
 			"dependability": 20,
 			"degrees": [],

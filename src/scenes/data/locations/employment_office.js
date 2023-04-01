@@ -12,7 +12,7 @@
  * screen). 
  */
 module.exports = {
-	"id": "employment_office",
+	"id": "How?_Center",
 	"x":  97, "y": 183,
 	"x1": 69, "y1": 156,
 	"x2":128, "y2": 193,
@@ -28,7 +28,7 @@ module.exports = {
 		"mouth_y": 49,
 	},
 	"welcomes": [
-		"Time to see what all that education has got you!",
+		"You want a job in this economy!?",
 	],
 	"item_color": 0x012d01,
 	"item_offset_y": -3,
