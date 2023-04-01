@@ -19,6 +19,6 @@ module.exports = {
 	"item_offset_y": 10,
 	"item_spacing": 30,
 	"welcomes": [
-		"It's a beautiful day."
+		"Ah look at all that sludge!"
 	]
 }

@@ -21,7 +21,7 @@ module.exports = {
 	"x":  21, "y": 145,
 	"x1":8, "y1": 120,
 	"x2":67, "y2": 155,
-	"image": "place_wallstreetbank",
+	"image": "place_bank",
 	"item_image_x": 0,
 	"item_image_y": 57,
 	"speech": {
@@ -40,7 +40,7 @@ module.exports = {
 	"jobs": [
 		{
 			"name": "Janitor",
-			"wage": 6,
+			"wage": 14,
 			"experience": 10,
 			"dependability": 20,
 			"degrees": [],

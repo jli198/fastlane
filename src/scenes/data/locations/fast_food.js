@@ -32,9 +32,10 @@ module.exports = {
 			},
 			"welcomes": [
 				"Welcome to Shake Smack, where our burgers definitely seem like real burgers!",
-				"Welcome to Shake Smack, Home of the Innovation Burger!",
+				"Welcome to Shake Smack, Home of the 'Best' Burger!",
 				"Welcome to Shake Smack! We're inspired by burgers, powered by money!",
 				"Welcome to Shake Smack! Please ignore the protesters out front! They hate freedom!",
+        "Hey, I wanted to experience what it's like to be in customer service!",
 			],
 			"item_color": 0x652327,
 			"item_hover": 0xb00036,
@@ -42,7 +43,7 @@ module.exports = {
 			"jobs": [
 				{
 					"name": "Cook",
-					"wage": 5,
+					"wage": 15,
 					"experience": 0,
 					"dependability": 10,
 					"degrees": [],
@@ -54,37 +55,37 @@ module.exports = {
 					"name": "Hamburgers",
 					"image": "item_burger",
 					"x": 5,
-					"price": 79,
+					"price": 8,
 					"use": function(scene) {
 						scene.player.ate = true;
 					},
-					"message": "It's technically edible! No refunds!"
+					"message": "How come Five Guys and In & Out are considered the best? WE DA BEST!!!"
 				},
 				{
 					"name": "Cheeseburgers",
 					"image": "item_cheeseburger",
-					"price": 89,
+					"price": 10,
 					"use": function(scene) {
 						scene.player.ate = true;
 						scene.player.happiness+=1;
 					},
-					"message": "In Paris, they call it a Royale With Cheese!"
+					"message": "Hope you're not lactose intolerant!!"
 				},
 				{
 					"name": "100% Chicken",
 					"image": "item_chicken",
-					"price": 124,
+					"price": 9,
 					"x": 73,
 					"use": function(scene,item) {
 						scene.player.ate = true;
 						scene.player.happiness+=2;
 					},
-					"message": "Scientifically indistinguishable from chicken!"
+					"message": "What do you mean? This isn't Beyond Chicken..."
 				},
 				{
 					"name": "Fries",
 					"image": "item_fries",
-					"price": 65,
+					"price": 5,
 					"use": function(scene,item) {
 						scene.player.ate = true;
 					},
@@ -93,11 +94,11 @@ module.exports = {
 				{
 					"name": "Shakes",
 					"image": "item_shake",
-					"price": 102,
+					"price": 10,
 					"use": function(scene,item) {
 						scene.player.happiness+=2;
 					},
-					"message": "Great for your health, I'm sure!"
+					"message": "Great for your health, I'm sure! (Ignore the lard)."
 				},
 				{ 
 					"name": "Degree",

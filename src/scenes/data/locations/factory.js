@@ -29,45 +29,12 @@ module.exports = {
   "item_offset_x": 57,
   "items": [
 		{
-			"name": "Business Suit",
-			"price": 295,
-			"x": 73,
-			"message": "Damn, it feels good to be an innovator!",
+			"name": "Doctor's Visit\n",
+			"price": 75,
+			"x": 97,
+			"message": "Thank Lorde you have health insurance!",
 			"use": function(scene,item) { 
-				scene.player.clothes = "business"; 
-				scene.player.image = scene.player.outfits[scene.player.clothes];
-				scene.player_image.destroy();
-				scene.player_image = scene.add.image(scene.width/2,scene.height/2,scene.player.image).setDepth(1);
-				scene.center(scene.player_image);
 				scene.player.happiness+=2;
-				scene.player.clothes_wear = 13;
-			}
-		},
-		{
-			"name": "Dress Clothes",
-			"price": 125,
-			"message": "You look like someone with some money and style!",
-			"use": function(scene,item) { 
-				scene.player.clothes = "dress";
-				scene.player.image = scene.player.outfits[scene.player.clothes];
-				scene.player_image.destroy();
-				scene.player_image = scene.add.image(scene.width/2,scene.height/2,scene.player.image).setDepth(1);
-				scene.center(scene.player_image);
-				scene.player.happiness+=1;
-				scene.player.clothes_wear = 13;
-			}
-		},
-		{
-			"name": "Casual Clothes",
-			"price": 73,
-			"message": "New clothes can't hurt!",
-			"use": function(scene,item) { 
-				scene.player.clothes = "casual"; 
-				scene.player.image = scene.player.outfits[scene.player.clothes];
-				scene.player_image.destroy();
-				scene.player_image = scene.add.image(scene.width/2,scene.height/2,scene.player.image).setDepth(1);
-				scene.center(scene.player_image);
-				scene.player.clothes_wear = 11;
 			}
 		},
 	]

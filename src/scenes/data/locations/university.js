@@ -167,6 +167,34 @@ module.exports = {
 								var remaining = scene.player.enrolled[enrolled].remaining;
 								remaining--;
 								scene.subtract_time(6);
+                
+                // Happiness Score Depends on Degree
+                if(scene.player.degrees.includes('Bach Eng')) {
+                  scene.player.happiness -= 5;
+                }
+                if(scene.player.degrees.includes('Bach CS')) {
+                  scene.player.happiness -= 7;
+                }
+                if(scene.player.degrees.includes('Bach Business')) {
+                  scene.player.happiness -= 3;
+                }
+                if(scene.player.degrees.includes('Bach Arts')) {
+                  scene.player.happiness -= 1;
+                }
+
+                if(scene.player.degrees.includes('MBA')) {
+                  scene.player.happiness -= 3;
+                }
+                if(scene.player.degrees.includes('M Eng')) {
+                  scene.player.happiness -= 7;
+                }
+                if(scene.player.degrees.includes('M CS')) {
+                  scene.player.happiness -= 5;
+                }
+                if(scene.player.degrees.includes('M Liberal Arts')) {
+                  scene.player.happiness -= 1;
+                }
+                
 								if(remaining==0) {
 									scene.player.enrolled.splice(enrolled,1);
 									scene.player.degrees.push(degree.name);

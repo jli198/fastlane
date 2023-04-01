@@ -30,7 +30,7 @@ module.exports = {
 	"jobs": [
 		{
 			"name": "Salesperson",
-			"wage": 8,
+			"wage": 17,
 			"experience": 30,
 			"dependability": 30,
 			"degrees": [],
@@ -38,7 +38,8 @@ module.exports = {
 		}
 	],
 	"welcomes": [
-		"Welcome to Nike, where you'll look like a million bucks!",
+		"Welcome to Nike, just do it!",
+    "You know I'm trying to be hip too!",
 	],
 	"item_color": 0x000100,
 	"item_spacing": 15,
@@ -48,7 +49,7 @@ module.exports = {
 			"name": "Business Suit",
 			"price": 295,
 			"x": 73,
-			"message": "Damn, it feels good to be an innovator!",
+			"message": "Why of all places would you choose Nike to buy a suit!?!?",
 			"use": function(scene,item) { 
 				scene.player.clothes = "business"; 
 				scene.player.image = scene.player.outfits[scene.player.clothes];
@@ -62,7 +63,7 @@ module.exports = {
 		{
 			"name": "Dress Clothes",
 			"price": 125,
-			"message": "You look like someone with some money and style!",
+			"message": "Sorry, we only got Polos",
 			"use": function(scene,item) { 
 				scene.player.clothes = "dress";
 				scene.player.image = scene.player.outfits[scene.player.clothes];
@@ -76,7 +77,7 @@ module.exports = {
 		{
 			"name": "Casual Clothes",
 			"price": 73,
-			"message": "New clothes can't hurt!",
+			"message": "Fly high like an eagle! Wait, no.",
 			"use": function(scene,item) { 
 				scene.player.clothes = "casual"; 
 				scene.player.image = scene.player.outfits[scene.player.clothes];

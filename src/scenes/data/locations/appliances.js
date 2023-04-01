@@ -31,7 +31,7 @@ module.exports = {
 	"jobs": [
 		{
 			"name": "Salesperson",
-			"wage": 7,
+			"wage": 18,
 			"experience": 30,
 			"dependability": 30,
 			"degrees": [],
@@ -128,7 +128,7 @@ module.exports = {
 			"name": "Computer",
 			"price": 1000,
 			"pawnable": true,
-			"message": "Are you gonna use that for ChatGPT?",
+			"message": "Don't be a crypto bro",
 			"use": function(scene,item) { scene.inventory_add_item(item.name); }
 		},
 	]

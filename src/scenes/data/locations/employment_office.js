@@ -28,7 +28,7 @@ module.exports = {
 		"mouth_y": 49,
 	},
 	"welcomes": [
-		"Time to see what all that education has got you!",
+		"You want a job in this economy!?",
 	],
 	"item_color": 0x012d01,
 	"item_offset_y": -3,
