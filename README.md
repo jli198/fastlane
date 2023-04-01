@@ -1,7 +1,7 @@
 # Fastlane
 
 * A modern reimagination of [Jones in the Fast Lane](https://en.wikipedia.org/wiki/Jones_in_the_Fast_Lane), a 1991 social simulation video game by [Sierra Online](https://en.wikipedia.org/wiki/Sierra_Entertainment).
-* Base Code provided by [Professor Alex Wellerstein](https://alexwellerste.in/). Credit to Creator.
+* Base Code provided by [Professor Alex Wellerstein](https://wellerste.in/). Credit to Creator.
 * Modified by [me](https://github.com/jli198), [Val](https://github.com/Val-Bustamante), and [Cesar](https://github.com/cespejo15/)
 
 ## Fastlane Directory
